@@ -9,6 +9,8 @@
 			"activityBar.background": "#525252",
 			"activityBar.foreground": "#ffffff",
 			"activityBar.activeBorder": "#ffffff",
+			"activityBarBadge.background": "#9f33afb0",
+			"activityBarBadge.foreground": "#ffffff",
 			"titleBar.activeBackground": "#444444",
 			"titleBar.activeForeground": "#ffffff",
 			"statusBar.background": "#792686",
