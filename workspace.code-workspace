@@ -1,5 +1,9 @@
 {
-	"folders": [],
+	"folders": [
+		{
+			"path": "."
+		}
+	],
 	"settings": {
 		"workbench.colorCustomizations": {
 			"activityBar.background": "#525252",
@@ -22,6 +26,8 @@
 		],
 		"java.project.sourcePaths": [
 			"src"
-		]
+		],
+		"java.compile.nullAnalysis.mode": "disabled",
+		"java.configuration.updateBuildConfiguration": "automatic"
 	}
 }
