@@ -1,17 +1,16 @@
-from sklearn import datasets
-from sklearn.cluster import KMeans
-from sklearn import metrics
-from sklearn.metrics import pairwise_distances
-import numpy as np
+import threading as th
+import time
 
-# loading the dataset
-X, y = datasets.load_iris("Clustering/Datasets/a.csv")
-
-# K-Means
-kmeans = KMeans(n_clusters=3, random_state=1).fit(X)
-
-# we store the cluster labels
-labels = kmeans.labels_
-print(X)
-
-print(metrics.calinski_harabasz_score(X, labels))
+def print_time( threadName, delay):
+    count = 0
+    time.sleep(delay)
+    return delay
+try:
+    number = 
+    number2 = _thread.start_new_thread( print_time, ("Thread-2", 4, ) )
+    print(number)
+    print(number2)
+except:
+   print ("Error: unable to start thread")
+while 1:
+   pass
