@@ -5,7 +5,6 @@ from tqdm import tqdm
 import math
 import PySimpleGUI as sg
 from sklearn import metrics
-
 matplotlib.use("TKAgg")
 
 # Global vars
@@ -26,8 +25,6 @@ point_movement_quantity = 0.1
 # Porcentaje en valor de 0 a 1 de que cuantos puntos que se tiene que mover para que se recalculen los clústeres
 reclustered_points_percentage_to_recalculate = 0.05
 
-plots =[]
-ax = []
 plot_index = [0, 0]
 
 # Confifuración de la IU
@@ -375,7 +372,7 @@ def execute():
         if (accumulated_reasigned_points > (len(labels) * reclustered_points_percentage_to_recalculate) or variated):
             optimal_centroids, labels, optimal_clusters = executeAndShowKmeans(
                 20)
-            print("Recalculando Clusteres:")
+            print("\nRecalculando Clusteres:")
             accumulated_reasigned_points = 0
         else:  # Si no ha variado lo suficiente, reasignamos los puntos a los clusteres correspodientes y los representamos
             print("\nLos siguientes puntos se reasignaran de cluster:\n",
