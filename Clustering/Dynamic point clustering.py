@@ -1,9 +1,12 @@
+import matplotlib
 import matplotlib.pyplot as plt
 import random
 from tqdm import tqdm
 import math
 import PySimpleGUI as sg
 from sklearn import metrics
+
+matplotlib.use("TKAgg")
 
 # Global vars
 x = []  # Lista de valores x
@@ -13,7 +16,6 @@ input_offset = 3
 input_values = []
 y_axis_limits = ()
 x_axis_limits = ()
-n_subplot_index = 1  # Valor de inicio de los subplots
 plot_columns = 2
 plot_rows = 4
 # Numero de iteraciones del bucle (simula instantes de tiempo de un día)
@@ -24,8 +26,9 @@ point_movement_quantity = 0.1
 # Porcentaje en valor de 0 a 1 de que cuantos puntos que se tiene que mover para que se recalculen los clústeres
 reclustered_points_percentage_to_recalculate = 0.05
 
-plt.figure(figsize=(6, 8), dpi=100)
-
+plots =[]
+ax = []
+plot_index = [0, 0]
 
 # Confifuración de la IU
 frame_layout = [[sg.Multiline("", size=(80, 20), autoscroll=True,
@@ -279,13 +282,15 @@ def reasignPoints(centroids, labels, newPoints):
 
 
 def add_clusters_to_plot(clusters):
-    global n_subplot_index
+    global plot_index
+    ax[plot_index[0]][plot_index[1]].set_ylim(min(y) - 1, max(y) + 1)
+    ax[plot_index[0]][plot_index[1]].set_xlim(min(x) - 1, max(x) + 1)
     for cluster in clusters:
-        plt.subplot(plot_rows, plot_columns, n_subplot_index)
-        plt.ylim(min(y) - 1, max(y) + 1)
-        plt.xlim(min(x) - 1, max(x) + 1)
-        plt.scatter(cluster[0], cluster[1], s=2)
-    n_subplot_index = n_subplot_index + 1
+        ax[plot_index[0]][plot_index[1]].scatter(cluster[0], cluster[1], s=2)
+    plot_index[1] = plot_index[1] + 1
+    if(plot_index[1] == plot_columns):
+        plot_index[0] = plot_index[0] + 1
+        plot_index[1] = 0
 
 
 def reasign_and_show(reasigned_points, labels):
@@ -317,8 +322,11 @@ def reasign_and_show(reasigned_points, labels):
 def setDataset(dataset):
     global input_values
     global x
+    x = []
     global y
+    y = []
     global point_class
+    point_class = []
     with open(dataset) as input_file:
         input_values = input_file.read()
     
@@ -374,10 +382,6 @@ def execute():
                   reasigned_points)
             labels = reasign_and_show(reasigned_points, labels)
 
-        if (i == max_iterations-2):
-            global n_subplot_index
-            n_subplot_index = 1
-
         window.refresh()
 
 
@@ -388,8 +392,10 @@ if __name__ == "__main__":
             break
         elif event == "Cargar dataset":
             setDataset(values["-FILE-"])
-            sg.popup("Dataset cargado")
+            sg.popup("Dataset cargado")   
         elif event == 'Ejecutar':
+            plots, ax = plt.subplots(plot_rows, plot_columns)
+            plot_index = [0, 0]
             execute()
             plt.show()
         elif event == 'Guardar parametros':
