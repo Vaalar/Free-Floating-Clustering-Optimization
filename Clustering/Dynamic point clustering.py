@@ -324,8 +324,14 @@ def setDataset(dataset):
     y = []
     global point_class
     point_class = []
-    with open(dataset) as input_file:
-        input_values = input_file.read()
+
+    try:
+        with open(dataset) as input_file:
+            input_values = input_file.read()
+    except Exception as e:
+            print("\n", e)
+            return False
+
     
     input_values = input_values.splitlines()[1::]
     for point in input_values:
@@ -340,6 +346,8 @@ def setDataset(dataset):
     x_axis_limits = (min(x), max(x))
     plt.ylim(y_axis_limits[0] - 1, y_axis_limits[1] + 1)
     plt.xlim(x_axis_limits[0] - 1, x_axis_limits[1] + 1)
+
+    return True # El dataset se pudo cargar con éxito 
 
 
 def execute():
@@ -383,18 +391,31 @@ def execute():
 
 
 if __name__ == "__main__":
+    has_loaded_file = False
     while True:
         event, values = window.read()
         if event in (sg.WIN_CLOSED, 'Close'):
             break
         elif event == "Cargar dataset":
-            setDataset(values["-FILE-"])
-            sg.popup("Dataset cargado")   
+            has_loaded_file = setDataset(values["-FILE-"])
+            if has_loaded_file:
+                sg.popup("Dataset cargado")  
+            else:
+                sg.popup("No se encontró el dataset. Por favor, seleccione uno nuevo.") 
         elif event == 'Ejecutar':
-            plots, ax = plt.subplots(plot_rows, plot_columns)
-            plot_index = [0, 0]
-            execute()
-            plt.show()
+            if not has_loaded_file:
+                sg.popup("ERROR. Cargue un archivo antes de ejecutar.")
+            elif plot_columns * plot_rows > max_iterations:
+                sg.popup("\nERROR\nAjuste el número de filas y columnas para que su multiplicación sea mayor o igual que las iteraciones.")
+            elif values["-FILE-"][-4:] != ".csv":
+                sg.popup("El archivo introducido no es un .csv")   
+            elif len(values["-FILE-"]) == 0:
+                sg.popup("\nERROR\nCargue un dataset antes de ejecutar.")
+            else:
+                plots, ax = plt.subplots(plot_rows, plot_columns)
+                plot_index = [0, 0]
+                execute()
+                plt.show()
         elif event == 'Guardar parametros':
             setParameters(values)
             sg.popup("Parámetros actualizados")
