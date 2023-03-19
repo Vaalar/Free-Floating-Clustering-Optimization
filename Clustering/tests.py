@@ -1,25 +1,17 @@
-import PySimpleGUI as sg
-import time
-import sys
+import matplotlib.pyplot as plt
 
-def longFunc():
-    for i in range(15):
-        print(i)
-        print(i, file=sys.__stdout__) # output to terminal is working realtime
-        time.sleep(1)
+x=[-1 ,0.5 ,1,-0.5]
+y=[ 0.5,  1, -0.5, -1]
 
-layout = [
-        [sg.RButton('Long Func', key='longFunc')],
-        [sg.Output(size=(60, 20))],
-        ]
+plt.plot(x,y, 'ro')
 
-window = sg.Window('realtime output').Layout(layout)
+def connectpoints(x,y,p1,p2):
+    x1, x2 = x[p1], x[p2]
+    y1, y2 = y[p1], y[p2]
+    plt.plot([x1,x2],[y1,y2],'k-')
 
-while True:
-    button, values = window.Read()
-    print(button, values)
+connectpoints(x,y,0,1)
+connectpoints(x,y,2,3)
 
-    if button is None or button == 'Exit':
-        break
-    elif button == 'longFunc':
-        longFunc()
+plt.axis('equal')
+plt.show()
