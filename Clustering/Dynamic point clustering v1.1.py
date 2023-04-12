@@ -1,3 +1,5 @@
+import tempfile
+from PIL import Image
 import matplotlib
 import matplotlib.pyplot as plt
 import random
@@ -45,10 +47,11 @@ reclustered_points_percentage_to_recalculate = 0.05
 plot_index = [0, 0]
 
 # Confifuración de la IU
+
 point_size = 5
 
 frame_layout = [[sg.Multiline("", size=(80, 20), autoscroll=True,
-                              reroute_stdout=True, reroute_stderr=False, key='-OUTPUT-')]]
+                              reroute_stdout=True, reroute_stderr=True, key='-OUTPUT-')]]
 
 layout = [[[sg.Text("Selecciona un dataset (.csv):"), sg.InputText(key="-FILE-", size=25, ), sg.FileBrowse(file_types=(("CSV", "*.csv"),)), sg.Button('Cargar dataset'),],
           [sg.Text("Columnas:"), sg.Input(key="-COLUMNS-", size=2, default_text=4),
@@ -57,7 +60,7 @@ layout = [[[sg.Text("Selecciona un dataset (.csv):"), sg.InputText(key="-FILE-",
            sg.VerticalSeparator(),
            sg.Text("Iteraciones:"), sg.Input(key="-ITERATIONS-", size=2, default_text=8)],],
           [sg.Text("Probabilidad de movimiento (Enteros de [0,100]:"),
-           sg.Input(key="-MOVPROB-", size=4, default_text=10), sg.Push(), sg.Button('Guardar parametros',)],
+           sg.Input(key="-MOVPROB-", size=4, default_text=10),],
           [sg.Text("Cantidad de movimiento (Decimales [0.0, 1.0]):"), sg.Input(
               key="-MOVQUANT-", size=4, default_text=0.1),],
           [sg.Text("% de puntos movidos para reclusterizar (Decimales [0.0, 1.0]):"),
@@ -65,9 +68,9 @@ layout = [[[sg.Text("Selecciona un dataset (.csv):"), sg.InputText(key="-FILE-",
           [sg.Text("Numero de agrupaciones entre las que calcular el óptimo (min. 3):"),
            sg.Input(key="-MAXPOINTCLUST-", size=4, default_text=10)],
           [sg.Text("Tamaño de los puntos del gráfico:"),
-           sg.Input(key="-POINTSIZE-", size=4, default_text=5)],
-          [[[sg.Button('Distribución de puntos actual',), sg.Button('Mostrar puntos que variaron',), [sg.Button(
-              'Mostrar configuración\nde clústeres actual',)], sg.Push(), sg.Button('Ejecutar',),], sg.Frame("Salida de consola", frame_layout)],]]
+           sg.Input(key="-POINTSIZE-", size=4, default_text=5),],
+          [[[sg.Button('Distribución de puntos actual',),sg.Button(
+              'Mostrar configuración de clústeres actual',), sg.Button('Ejecutar',),], sg.Frame("Salida de consola", frame_layout),],],]
 
 window = sg.Window('Dynamic point clustering', layout, resizable=True)
 ####
@@ -317,6 +320,7 @@ def reasignPoints(centroids, labels, newPoints):
 def add_clusters_to_plot(clusters, centroids, reasigned_points, post_reasigned_points, old_coords):
     global plot_index
     global point_size
+
     old_x = old_coords[0]
     old_y = old_coords[1]
     ax[plot_index[0]][plot_index[1]].set_ylim(min(y) - 1, max(y) + 1)
@@ -438,6 +442,8 @@ def execute():
     global old_y
     global old_x_list
     global old_y_list
+    global x
+    global y
     last_n_optimal_centroids_configuration.clear()
     last_n_optimal_clusters_configurations.clear()
     last_n_reasigned_points_configurations.clear()
@@ -446,7 +452,7 @@ def execute():
     old_y_list.clear()
     # optimal_centroids Almacena los centroides de la configuración óptima relativa hallada
     # labels Almacena el índice de el clúster al que está asignado cada punto
-
+    
     for i in tqdm(range(max_iterations-1)):
         if (i == 0):
             optimal_centroids, labels, optimal_clusters = executeKmeans(
@@ -460,12 +466,12 @@ def execute():
             old_y_list.append(old_y.copy())
 
         old_x = x.copy()
-        old_x_list.append(old_x.copy())
+        old_x_list.append(x)
         old_y = y.copy()
-        old_y_list.append(old_y.copy())
+        old_y_list.append(y)
         x.clear()
         y.clear()
-        # Mueve los puntos con un valor de 20% de probabilidad de èxito para cada punto
+        # Mueve los puntos con un valor de point_movement_probability% de probabilidad de èxito para cada punto
         movePoints(old_x, old_y, point_movement_probability,
                    point_movement_quantity)
 
@@ -477,75 +483,80 @@ def execute():
         accumulated_reasigned_points = accumulated_reasigned_points + \
             len(reasigned_points)
 
-        # Reconfiguramos los clusters si muchos puntos han cambiado de cluster en un mismo instante, o si llevamos una acumulación de puntos movidos
-        # desde la última reconfiguración de al menos el 5% de los puntos del dataset.
-        if (accumulated_reasigned_points > (len(labels) * reclustered_points_percentage_to_recalculate) or variated):
-            optimal_centroids, labels, optimal_clusters = executeKmeans(
-                max_clusters_to_calculate, reasigned_points)
-            print("\nRecalculando Clusteres:")
-            accumulated_reasigned_points = 0
-        else:  # Si no ha variado lo suficiente, reasignamos los puntos a los clusteres correspodientes y los representamos
-            print("\nLos siguientes puntos se reasignaran de cluster:\n",
-                  reasigned_points)
-            labels, post_reasigned_points = reasign_and_show(
-                reasigned_points, labels, optimal_centroids)
-
-        last_n_reasigned_points_configurations.append(reasigned_points)
+        if(max_iterations > 1):
+            # Reconfiguramos los clusters si muchos puntos han cambiado de cluster en un mismo instante, o si llevamos una acumulación de puntos movidos
+            # desde la última reconfiguración de al menos el 5% de los puntos del dataset.
+            if (accumulated_reasigned_points > (len(labels) * reclustered_points_percentage_to_recalculate) or variated):
+                optimal_centroids, labels, optimal_clusters = executeKmeans(
+                    max_clusters_to_calculate, reasigned_points)
+                print("\nRecalculando Clusteres:")
+                accumulated_reasigned_points = 0
+                last_n_post_reasigned_points_configurations.append(
+                    [])
+            else:  # Si no ha variado lo suficiente, reasignamos los puntos a los clusteres correspodientes y los representamos
+                print("\nLos siguientes puntos se reasignaran de cluster:\n",
+                    reasigned_points)
+                labels, post_reasigned_points = reasign_and_show(
+                    reasigned_points, labels, optimal_centroids)
+                last_n_post_reasigned_points_configurations.append(
+                    post_reasigned_points)
+            
+        last_n_reasigned_points_configurations.append(
+            reasigned_points)
         last_n_optimal_clusters_configurations.append(optimal_clusters)
         last_n_optimal_centroids_configuration.append(optimal_centroids)
-        last_n_post_reasigned_points_configurations.append(
-            post_reasigned_points)
         window.refresh()
 
 
 if __name__ == "__main__":
     has_loaded_file = False
+    executed_once = False
     plots = None
     ax = None
-    while True:
-        event, values = window.read()
-        if event in (sg.WIN_CLOSED, 'Close'):
-            break
-        elif event == "Cargar dataset":
-            has_loaded_file = setDataset(values["-FILE-"])
-            if has_loaded_file:
-                sg.popup("Dataset cargado")
-            else:
-                sg.popup(
-                    "No se encontró el dataset. Por favor, seleccione uno nuevo.")
-        elif event == 'Ejecutar':
-            if not has_loaded_file:
-                sg.popup("ERROR. Cargue un archivo antes de ejecutar.")
-            elif plot_columns * plot_rows > max_iterations:
-                sg.popup(
-                    "\nERROR\nAjuste el número de filas y columnas para que su multiplicación sea mayor o igual que las iteraciones.")
-            elif values["-FILE-"][-4:] != ".csv":
-                sg.popup("El archivo introducido no es un .csv")
-            elif len(values["-FILE-"]) == 0:
-                sg.popup("\nERROR\nCargue un dataset antes de ejecutar.")
-            else:
-                plots, ax = plt.subplots(
-                    plot_rows, plot_columns, figsize=(50, 50))
-                plot_index = [0, 0]
-                execute()
-                plots.show()
-        elif event == 'Guardar parametros':
-            setParameters(values)
-            sg.popup("Parámetros actualizados")
-        elif event == 'Distribución de puntos actual':
-            initial_dataset, ax_init_dataset = plt.subplots(1, 1)
-            ax_init_dataset.scatter(x, y)
-            plt.show()
-        elif event == 'Mostrar configuración\nde clústeres actual':
-            if (plots != None):
-                plots, ax = plt.subplots(
-                    plot_rows, plot_columns, figsize=(50, 50))
-                plot_index = [0, 0]
-                for configuration_i_index in range(len(last_n_optimal_clusters_configurations)):
-                    add_clusters_to_plot(last_n_optimal_clusters_configurations[configuration_i_index], list(zip(*last_n_optimal_centroids_configuration[configuration_i_index])),
-                                         last_n_reasigned_points_configurations[configuration_i_index], last_n_post_reasigned_points_configurations[configuration_i_index], (old_x_list[configuration_i_index], old_y_list[configuration_i_index]))
-                plots.show()
-            else:
-                sg.popup("No hay configuración actual de clústeres")
+    with tempfile.NamedTemporaryFile(suffix=".png") as temp_plot:
+        while True:
+            event, values = window.read()
+            if event in (sg.WIN_CLOSED, 'Close'):
+                break
+            elif event == "Cargar dataset":
+                has_loaded_file = setDataset(values["-FILE-"])
+                if has_loaded_file:
+                    sg.popup("Dataset cargado")
+                else:
+                    sg.popup(
+                        "No se encontró el dataset. Por favor, seleccione uno nuevo.")
+            elif event == 'Ejecutar':
+                if not has_loaded_file:
+                    sg.popup("ERROR. Cargue un archivo antes de ejecutar.")
+                elif plot_columns * plot_rows > max_iterations:
+                    sg.popup(
+                        "\nERROR\nAjuste el número de filas y columnas para que su multiplicación sea mayor o igual que las iteraciones.")
+                elif values["-FILE-"][-4:] != ".csv":
+                    sg.popup("El archivo introducido no es un .csv")
+                elif len(values["-FILE-"]) == 0:
+                    sg.popup("\nERROR\nCargue un dataset antes de ejecutar.")
+                else:
+                    setParameters(values)
+                    plots, ax = plt.subplots(
+                        plot_rows, plot_columns, figsize=(20, 10))
+                    plot_index = [0, 0]
+                    execute()
+                    executed_once = True
+                    plots.savefig(temp_plot.name, dpi=150)
+                    plots.show()
+            elif event == 'Distribución de puntos actual':
+                if has_loaded_file:
+                    initial_dataset, ax_init_dataset = plt.subplots(1, 1)
+                    ax_init_dataset.scatter(x, y)
+                    plt.show()
+                else:
+                    sg.popup("\nERROR\nCargue un dataset antes de ejecutar.")
+            elif event == 'Mostrar configuración de clústeres actual':
+                if executed_once:
+                    image = Image.open(rf"{temp_plot.name}")
+                    plt.imshow(image)
+                    plt.show()
+                else:
+                    sg.popup("Ejecute al menos una vez el algoritmo")
 
     window.close()
