@@ -29,6 +29,10 @@ last_n_reasigned_points_configurations = []
 last_n_optimal_clusters_configurations = []
 # Guarda los centroides de la ejecución anterior
 last_n_optimal_centroids_configuration = []
+# Guarda las etiquetas de la última clusterización
+last_reclusterization_labels = []
+# Puntos reasignados desde la ultima iteración
+reclustered_points_since_last_iteration = []
 input_offset = 3
 input_values = []
 y_axis_limits = ()
@@ -308,9 +312,19 @@ def executeKmeans(max_clusters, reasigned_points):
 def hasSignificantVariation(newPoints, centroids, labels, accumulated_moved_points):
     # reasigna los puntos a otro centroide si estos puntos han variado lo suficiente
     global reassigment_coefficient
+    global last_reclusterization_labels
     reasigned_points = reasignPoints(centroids, labels, newPoints)
+
+    for point in reasigned_points:
+        if(point[0] in reclustered_points_since_last_iteration):
+            if(last_reclusterization_labels[point[0]] == point[1]):
+                reclustered_points_since_last_iteration.remove(point[0])
+        else:
+            reclustered_points_since_last_iteration.append(point[0])
+
+
     reassigment_coefficient += (1/len(labels)) * (
-        (delta_m * len(accumulated_moved_points)) + (delta_c * len(reasigned_points)))
+        (delta_m * len(accumulated_moved_points)) + (delta_c * len(reclustered_points_since_last_iteration)))
     # Si varían el reclustered_points_percentage_to_recalculate% de los puntos a la vez, se recalculan los clusteres
     if (reassigment_coefficient > reassigment_coefficient_threshold):
         return reasigned_points, True
@@ -481,6 +495,7 @@ def execute():
     global post_reasigned_points
     # Indica cuándo se debería reclusterizar o reasignar.
     global reassigment_coefficient
+    global last_reclusterization_labels
     optimal_centroids = []
     labels = []
     optimal_clusters = []
@@ -514,6 +529,7 @@ def execute():
                 post_reasigned_points)
             old_x_list.append(old_x.copy())
             old_y_list.append(old_y.copy())
+            last_reclusterization_labels = labels.copy()
 
         old_x = x.copy()
         old_x_list.append(x)
@@ -544,8 +560,8 @@ def execute():
                 print("\nClústeres recalculados\n")
                 reassigment_coefficient = 0
                 accumulated_moved_points.clear()
-                last_n_post_reasigned_points_configurations.append(
-                    [])
+                reclustered_points_since_last_iteration.clear()
+                last_n_post_reasigned_points_configurations.append([])
             else:  # Si no ha variado lo suficiente, reasignamos los puntos a los clusteres correspodientes y los representamos
                 print("\nLos siguientes puntos se reasignaran de cluster:",
                       reasigned_points)
