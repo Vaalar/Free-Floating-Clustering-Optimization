@@ -75,7 +75,7 @@ graph_distribution_frame = [
      sg.Text("Filas"), sg.Input(
         key="-ROWS-", size=2, default_text=2),
      sg.VerticalSeparator(),
-     sg.Text("Iteraciones:"), sg.Input(key="-ITERATIONS-", size=2, default_text=8)],
+     sg.Text("Iteraciones:"), sg.Input(key="-ITERATIONS-", readonly=True, size=3, default_text="f * c")],
     [sg.Text("Tamaño de los puntos del gráfico:"), sg.Input(
         key="-POINTSIZE-", size=2, default_text=5),]
 ]
@@ -127,7 +127,7 @@ def setParameters(values):
     global delta_m
     plot_columns = eval(values["-COLUMNS-"])
     plot_rows = eval(values["-ROWS-"])
-    max_iterations = eval(values["-ITERATIONS-"])
+    max_iterations = plot_columns * plot_rows
     point_movement_probability = eval(values["-MOVPROB-"])*100
     point_movement_quantity = eval(values["-MOVQUANT-"])
     max_clusters_to_calculate = eval(values["-MAXPOINTCLUST-"])
