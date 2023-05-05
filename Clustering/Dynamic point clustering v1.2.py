@@ -18,6 +18,8 @@ old_x_list = []  # Lista de valores x
 old_y_list = []  # Lista de valores y
 point_class = []  # Lista de valores de los puntos
 reasigned_points = []  # Puntos que se reasignaron desde la ultima iteración
+# Puntos que se movieron desde que se realizó la última clusterización (Elimina repetidos)
+accumulated_moved_points = []
 post_reasigned_points = []  # Coordenadas de los puntos q se reasignaron
 # Puntos que se reasignaron desde la ultima iteración
 last_n_post_reasigned_points_configurations = []
@@ -36,11 +38,17 @@ plot_rows = 2
 max_clusters_to_calculate = 20
 # Numero de iteraciones del bucle (simula instantes de tiempo de un día)
 max_iterations = 8
-point_movement_probability = 10  # Probabilidad de que se mueva un punto
+point_movement_probability = 0.1  # Probabilidad de que se mueva un punto
 # Cantidad de movimiento de un punto respecto a la distancia entre los puntos más lejanos de cada eje.
 point_movement_quantity = 0.1
 # Porcentaje en valor de 0 a 1 de que cuantos puntos que se tiene que mover para que se recalculen los clústeres
-reclustered_points_percentage_to_recalculate = 0.05
+reassigment_coefficient_threshold = 0.1
+# Multiplicador de la variación de movimiento
+delta_m = 0.1
+# Multiplicador de la variación puntos de cluster
+delta_c = 0.9
+# Coeficiente de reasignación
+reassigment_coefficient = 0
 #####
 
 
@@ -50,29 +58,59 @@ plot_index = [0, 0]
 
 point_size = 5
 
-frame_layout = [[sg.Multiline("", size=(80, 20), autoscroll=True,
+sg.theme("Reddit")
+
+frame_layout = [[sg.Multiline("", size=(72, 15), autoscroll=True,
                               reroute_stdout=True, reroute_stderr=True, key='-OUTPUT-')]]
 
-layout = [[[sg.Text("Selecciona un dataset (.csv):"), sg.InputText(key="-FILE-", size=25, ), sg.FileBrowse(file_types=(("CSV", "*.csv"),)), sg.Button('Cargar dataset'),],
-          [sg.Text("Columnas:"), sg.Input(key="-COLUMNS-", size=2, default_text=4),
-           sg.VerticalSeparator(),
-           sg.Text("Filas"), sg.Input(key="-ROWS-", size=2, default_text=2),
-           sg.VerticalSeparator(),
-           sg.Text("Iteraciones:"), sg.Input(key="-ITERATIONS-", size=2, default_text=8)],],
-          [sg.Text("Probabilidad de movimiento (Enteros de [0,100]:"),
-           sg.Input(key="-MOVPROB-", size=4, default_text=10),],
-          [sg.Text("Cantidad de movimiento (Decimales [0.0, 1.0]):"), sg.Input(
-              key="-MOVQUANT-", size=4, default_text=0.1),],
-          [sg.Text("% de puntos movidos para reclusterizar (Decimales [0.0, 1.0]):"),
-           sg.Input(key="-MOVPOITOREC-", size=4, default_text=0.05)],
-          [sg.Text("Numero de agrupaciones entre las que calcular el óptimo (min. 3):"),
-           sg.Input(key="-MAXPOINTCLUST-", size=4, default_text=10)],
-          [sg.Text("Tamaño de los puntos del gráfico:"),
-           sg.Input(key="-POINTSIZE-", size=4, default_text=5),],
-          [[[sg.Button('Distribución de puntos actual',),sg.Button(
+dataset_load_frame = [
+    [sg.InputText(key="-FILE-", size=46),
+     sg.FileBrowse(file_types=(("CSV", "*.csv"),)),
+     sg.Button('Cargar dataset')]
+]
+
+graph_distribution_frame = [
+    [sg.Text("Columnas:"), sg.Input(key="-COLUMNS-", size=2, default_text=4),
+     sg.VerticalSeparator(),
+     sg.Text("Filas"), sg.Input(
+        key="-ROWS-", size=2, default_text=2),
+     sg.VerticalSeparator(),
+     sg.Text("Iteraciones:"), sg.Input(key="-ITERATIONS-", size=2, default_text=8)],
+    [sg.Text("Tamaño de los puntos del gráfico:"), sg.Input(
+        key="-POINTSIZE-", size=2, default_text=5),]
+]
+
+movement_variables_frame = [
+    [sg.Text("Probabilidad de movimiento (Decimales [0.0, 1.0]:"),
+     sg.Input(key="-MOVPROB-", size=4, default_text=0.1),],
+    [sg.Text("Cantidad de movimiento (Decimales [0.0, 1.0]):"), sg.Input(
+        key="-MOVQUANT-", size=4, default_text=0.1),]
+]
+
+reclusterization_variables_frame = [
+    [sg.Text("Delta_m (Decimales [0.0, 1.0]):"),
+     sg.Input(key="-DELTAM-", size=4,
+              default_text=0.1), sg.VerticalSeparator(), sg.Text("Delta_c (Decimales [0.0, 1.0]):"),
+     sg.Input(key="-DELTAC-", size=9, default_text="1-delta_m", readonly=True)],
+    [sg.Text("Umbral del coeficiente de reasignación para reclusterizar (Decimales [0.0, 1.0]):"),
+     sg.Input(key="-RCTHRESHOLD-", size=4, default_text=0.1),
+     sg.Text("\n")],
+    [sg.Text("Numero de agrupaciones entre las que calcular el óptimo (min. 3):"),
+     sg.Input(key="-MAXPOINTCLUST-", size=4, default_text=10)]
+]
+
+layout = [[sg.Frame("SELECCION DE DATASET", dataset_load_frame, font="Any 12")],
+          [sg.Frame("DISTRIBUCIÓN DEL GRÁFICO",
+                    graph_distribution_frame, font="Any 12")],
+          [sg.Frame("VARIABLES DE MOVIMIENTO",
+                    movement_variables_frame, font="Any 12")],
+          [sg.Frame("VARIABES DE RECLUSTERIZACIÓN",
+                    reclusterization_variables_frame, font="Any 12")],
+          [[[sg.Button('Distribución de puntos actual',), sg.Button(
               'Mostrar configuración de clústeres actual',), sg.Button('Ejecutar',),], sg.Frame("Salida de consola", frame_layout),],],]
 
-window = sg.Window('Dynamic point clustering', layout, resizable=True)
+window = sg.Window('Dynamic point clustering', layout,
+                   resizable=True, element_justification="l")
 ####
 
 
@@ -83,17 +121,21 @@ def setParameters(values):
     global max_iterations
     global point_movement_probability
     global point_movement_quantity
-    global reclustered_points_percentage_to_recalculate
     global max_clusters_to_calculate
+    global reassigment_coefficient_threshold
+    global delta_c
+    global delta_m
     plot_columns = eval(values["-COLUMNS-"])
     plot_rows = eval(values["-ROWS-"])
     max_iterations = eval(values["-ITERATIONS-"])
-    point_movement_probability = eval(values["-MOVPROB-"])
+    point_movement_probability = eval(values["-MOVPROB-"])*100
     point_movement_quantity = eval(values["-MOVQUANT-"])
-    reclustered_points_percentage_to_recalculate = eval(
-        values["-MOVPOITOREC-"])
     max_clusters_to_calculate = eval(values["-MAXPOINTCLUST-"])
     point_size = eval(values["-POINTSIZE-"])
+    reassigment_coefficient_threshold = eval(
+        values["-RCTHRESHOLD-"])
+    delta_m = eval(values["-DELTAM-"])
+    delta_c = 1-delta_m
 
 
 def mean(list):  # Función que calcula la media de una lista
@@ -263,11 +305,14 @@ def executeKmeans(max_clusters, reasigned_points):
     return centroids, labels, clusters
 
 
-def hasSignificantVariation(oldPoints, newPoints, centroids, labels):
+def hasSignificantVariation(newPoints, centroids, labels, accumulated_moved_points):
     # reasigna los puntos a otro centroide si estos puntos han variado lo suficiente
+    global reassigment_coefficient
     reasigned_points = reasignPoints(centroids, labels, newPoints)
+    reassigment_coefficient += (1/len(labels)) * (
+        (delta_m * len(accumulated_moved_points)) + (delta_c * len(reasigned_points)))
     # Si varían el reclustered_points_percentage_to_recalculate% de los puntos a la vez, se recalculan los clusteres
-    if (len(reasigned_points) > len(oldPoints[0]) * reclustered_points_percentage_to_recalculate):
+    if (reassigment_coefficient > reassigment_coefficient_threshold):
         return reasigned_points, True
     else:
         return reasigned_points, False
@@ -282,6 +327,7 @@ def movePoints(old_x, old_y, probability=15, movement=0.1):
     global y
     max_distance_x = (max(old_x) - min(old_x)) * movement
     max_distance_y = (max(old_y) - min(old_y)) * movement
+    moved_points = []
     for i in range(0, len(old_x)):
         if (probability > random.randrange(0, 100)):
             moved_distance_x = random.uniform(-max_distance_x, max_distance_x)
@@ -295,9 +341,12 @@ def movePoints(old_x, old_y, probability=15, movement=0.1):
 
             x.append(old_x[i] + moved_distance_x)
             y.append(old_y[i] + moved_distance_y)
+            moved_points.append(i)
         else:
             x.append(old_x[i])
             y.append(old_y[i])
+
+    return moved_points
 
 
 # Comprueba si han cambiado puntos de un cluster a otro
@@ -428,9 +477,10 @@ def setDataset(dataset):
 
 def execute():
     global reasigned_points
+    global accumulated_moved_points
     global post_reasigned_points
-    # Indica cuantos puntos se han reasignado desde que se realizó la última clusterización
-    accumulated_reasigned_points = 0
+    # Indica cuándo se debería reclusterizar o reasignar.
+    global reassigment_coefficient
     optimal_centroids = []
     labels = []
     optimal_clusters = []
@@ -452,7 +502,7 @@ def execute():
     old_y_list.clear()
     # optimal_centroids Almacena los centroides de la configuración óptima relativa hallada
     # labels Almacena el índice de el clúster al que está asignado cada punto
-    
+
     for i in tqdm(range(max_iterations-1)):
         if (i == 0):
             optimal_centroids, labels, optimal_clusters = executeKmeans(
@@ -472,30 +522,33 @@ def execute():
         x.clear()
         y.clear()
         # Mueve los puntos con un valor de point_movement_probability% de probabilidad de èxito para cada punto
-        movePoints(old_x, old_y, point_movement_probability,
-                   point_movement_quantity)
+        moved_points = movePoints(old_x, old_y, point_movement_probability,
+                                  point_movement_quantity)
+        for point in moved_points:
+            if point not in accumulated_moved_points:
+                accumulated_moved_points.append(point)
 
         # Variated guarda el valor booleano acerca de si variaron el número de puntos suficientes
         # Reasigned_points guarda los puntos que variaron para modificarlos en el clúster correspondiente
         # Considero que el dataset ha variado sí hay un x% de puntos que han cambiado su cluster
         reasigned_points, variated = hasSignificantVariation(
-            (old_x, old_y, point_class), (x, y, point_class), optimal_centroids, labels)
-        accumulated_reasigned_points = accumulated_reasigned_points + \
-            len(reasigned_points)
+            (x, y, point_class), optimal_centroids, labels, accumulated_moved_points)
+        print(f"\nCoeficiente de reasignacion: {reassigment_coefficient}")
 
-        if(max_iterations > 1):
+        if (max_iterations > 1):
             # Reconfiguramos los clusters si muchos puntos han cambiado de cluster en un mismo instante, o si llevamos una acumulación de puntos movidos
             # desde la última reconfiguración de al menos el reclustered_points_percentage_to_recalculate% de los puntos del dataset.
-            if ((accumulated_reasigned_points > (len(labels) * reclustered_points_percentage_to_recalculate)) or variated):
+            if ((reassigment_coefficient > reassigment_coefficient_threshold) or variated):
                 optimal_centroids, labels, optimal_clusters = executeKmeans(
                     max_clusters_to_calculate, reasigned_points)
                 print("\nClústeres recalculados\n")
-                accumulated_reasigned_points = 0
+                reassigment_coefficient = 0
+                accumulated_moved_points.clear()
                 last_n_post_reasigned_points_configurations.append(
                     [])
             else:  # Si no ha variado lo suficiente, reasignamos los puntos a los clusteres correspodientes y los representamos
                 print("\nLos siguientes puntos se reasignaran de cluster:",
-                    reasigned_points)
+                      reasigned_points)
                 labels, post_reasigned_points = reasign_and_show(
                     reasigned_points, labels, optimal_centroids)
                 last_n_post_reasigned_points_configurations.append(
