@@ -323,7 +323,7 @@ def hasSignificantVariation(newPoints, centroids, labels, accumulated_moved_poin
             reclustered_points_since_last_iteration.append(point[0])
 
 
-    reassigment_coefficient += (1/len(labels)) * (
+    reassigment_coefficient = (1/len(labels)) * (
         (delta_m * len(accumulated_moved_points)) + (delta_c * len(reclustered_points_since_last_iteration)))
     # Si varían el reclustered_points_percentage_to_recalculate% de los puntos a la vez, se recalculan los clusteres
     if (reassigment_coefficient > reassigment_coefficient_threshold):
