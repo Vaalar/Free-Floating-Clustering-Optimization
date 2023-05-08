@@ -6,6 +6,7 @@ import random
 from tqdm import tqdm
 import math
 import PySimpleGUI as sg
+from os import getcwd
 from sklearn import metrics
 matplotlib.use("TKAgg")
 
@@ -73,6 +74,12 @@ dataset_load_frame = [
      sg.Button('Cargar dataset')]
 ]
 
+dataset_generator_frame = [
+    [sg.Text("Número de puntos a generar:"), sg.Input(
+        key="-POINTSTOGENERATE-", size=4, default_text=20)],
+    [sg.Button('Generar dataset', size=(27,1))]
+]
+
 graph_distribution_frame = [
     [sg.Text("Columnas:"), sg.Input(key="-COLUMNS-", size=2, default_text=4),
      sg.VerticalSeparator(),
@@ -105,10 +112,10 @@ reclusterization_variables_frame = [
 
 layout = [[sg.Frame("SELECCION DE DATASET", dataset_load_frame, font="Any 12")],
           [sg.Frame("DISTRIBUCIÓN DEL GRÁFICO",
-                    graph_distribution_frame, font="Any 12")],
+                    graph_distribution_frame, font="Any 12"), sg.Frame("GENERACIÓN DE DATASETS:", dataset_generator_frame, font="12")],
           [sg.Frame("VARIABLES DE MOVIMIENTO",
                     movement_variables_frame, font="Any 12")],
-          [sg.Frame("VARIABES DE RECLUSTERIZACIÓN",
+          [sg.Frame("VARIABlES DE RECLUSTERIZACIÓN",
                     reclusterization_variables_frame, font="Any 12")],
           [[[sg.Button('Distribución de puntos actual',), sg.Button(
               'Mostrar configuración de clústeres actual',), sg.Button('Ejecutar',),], sg.Frame("Salida de consola", frame_layout),],],]
@@ -316,12 +323,11 @@ def hasSignificantVariation(newPoints, centroids, labels, accumulated_moved_poin
     reasigned_points = reasignPoints(centroids, labels, newPoints)
 
     for point in reasigned_points:
-        if(point[0] in reclustered_points_since_last_iteration):
-            if(last_reclusterization_labels[point[0]] == point[1]):
+        if (point[0] in reclustered_points_since_last_iteration):
+            if (last_reclusterization_labels[point[0]] == point[1]):
                 reclustered_points_since_last_iteration.remove(point[0])
         else:
             reclustered_points_since_last_iteration.append(point[0])
-
 
     reassigment_coefficient = (1/len(labels)) * (
         (delta_m * len(accumulated_moved_points)) + (delta_c * len(reclustered_points_since_last_iteration)))
@@ -489,6 +495,17 @@ def setDataset(dataset):
     return True  # El dataset se pudo cargar con éxito
 
 
+def generateRandomDataset(number_of_points_to_be_generated=20):
+    generated_random_points = [
+        [random.uniform(-2, 2), random.uniform(-2, 2), 0] for x in range(number_of_points_to_be_generated)]
+
+    with open("random_dataset.csv", "w") as file:
+        file.write("x,y,class\n")
+        for point in generated_random_points:
+            file.write(f"{point[0]},{point[1]},{point[2]}\n")
+    print(f"Random dataset generated with {number_of_points_to_be_generated}. File path: {getcwd()}/random_dataset.csv")
+
+
 def execute():
     global reasigned_points
     global accumulated_moved_points
@@ -627,5 +644,7 @@ if __name__ == "__main__":
                     plt.show()
                 else:
                     sg.popup("Ejecute al menos una vez el algoritmo")
+            elif event == 'Generar dataset':
+                generateRandomDataset(int(values["-POINTSTOGENERATE-"]))
 
     window.close()
