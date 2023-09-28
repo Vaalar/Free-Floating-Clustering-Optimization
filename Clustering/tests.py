@@ -1,17 +1,10 @@
-import matplotlib.pyplot as plt
+import pandas as pd
 
-x=[-1 ,0.5 ,1,-0.5]
-y=[ 0.5,  1, -0.5, -1]
+file = pd.read_csv('Clustering/Datasets/primeras_ultimas.csv')
 
-plt.plot(x,y, 'ro')
 
-def connectpoints(x,y,p1,p2):
-    x1, x2 = x[p1], x[p2]
-    y1, y2 = y[p1], y[p2]
-    plt.plot([x1,x2],[y1,y2],'k-')
+groups = file.groupby('cyclenumber')
 
-connectpoints(x,y,0,1)
-connectpoints(x,y,2,3)
+for value in groups.groups: # Obtención de las keys de los grupos
+    print(float((groups.get_group(value).iloc[0])['longitude'])) # Acceso a una fila de un grupo
 
-plt.axis('equal')
-plt.show()
