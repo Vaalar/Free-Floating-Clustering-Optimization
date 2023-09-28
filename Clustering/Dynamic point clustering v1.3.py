@@ -21,7 +21,6 @@ old_x = []  # Lista de valores x
 old_y = []  # Lista de valores y
 old_x_list = []  # Lista de valores x
 old_y_list = []  # Lista de valores y
-point_class = []  # Lista de valores de los puntos
 groups = None # Guarda las rutas que ha realizado cada bicicleta
 reasigned_points = []  # Puntos que se reasignaron desde la ultima iteración
 # Puntos que se movieron desde que se realizó la última clusterización (Elimina repetidos)
@@ -177,7 +176,7 @@ def initialize(k="Number of centroids", d="Data points"):
     point_position = point_distance_to_centroids[0].index(
         min(point_distance_to_centroids[0]))
     centroids.append((d[0][point_position], d[1]
-                     [point_position], point_class[point_position]))
+                     [point_position]))
 
     point_distance_to_centroids[0].clear()  # Borro las distancias a la media
 
@@ -207,7 +206,7 @@ def initialize(k="Number of centroids", d="Data points"):
         # Ahora que ya tengo el punto más lejano del centroide, procedo a añadirlo como centroide nuevo
 
         centroids.append((d[0][furthest_point_index], d[1]
-                         [furthest_point_index], d[2][furthest_point_index]))
+                         [furthest_point_index]))
 
         # Una vez añadido el centroide, recalculo las distancias y asignaciones de los puntos.
         point_distance_to_centroids.append([])
@@ -270,7 +269,6 @@ def kmeans(k="Number of centroids", d="Data points"):
             # Asigno al cluster el punto
             clusters[cluster_number][0].append(d[0][i])
             clusters[cluster_number][1].append(d[1][i])
-            clusters[cluster_number][2].append(d[2][i])
 
         # Recalculamos los centros calculando el punto más cercano a la media del cluster
         cluster_number = 0  # Usado como índice para recorrer los clusteres
@@ -300,7 +298,7 @@ def executeKmeans(max_clusters, reasigned_points):
     # Calculamos N clústeres para comprobar cual es la agrupación óptima.
     for n_clusters in range(2, n_max_clusteres):
         # Capturamos los clústeres y las etiquetas
-        centroids, clusters, labels = kmeans(n_clusters, (x, y, point_class))
+        centroids, clusters, labels = kmeans(n_clusters, (x, y))
 
         # Calculamos el índice de Calinski-Harabasz utilizando el método proprocionado por la biblioteca scikit.learn.
         clusters_CH_index.append(
@@ -452,8 +450,6 @@ def reasign_and_show(reasigned_points, labels, centroids):
                      [1]][0].append(x[i])
             clusters[reasigned_points[reasigned_points_index]
                      [1]][1].append(y[i])
-            clusters[reasigned_points[reasigned_points_index]
-                     [1]][2].append(point_class[i])
             labels[i] = reasigned_points[reasigned_points_index][1]
             post_reasigned_points[0].append(x[i])
             post_reasigned_points[1].append(y[i])
@@ -461,7 +457,6 @@ def reasign_and_show(reasigned_points, labels, centroids):
         else:
             clusters[labels[i]][0].append(x[i])
             clusters[labels[i]][1].append(y[i])
-            clusters[labels[i]][2].append(point_class[i])
 
     add_clusters_to_plot(clusters, list(zip(*centroids)),
                          reasigned_points, post_reasigned_points, (old_x, old_y))
@@ -475,8 +470,6 @@ def setDataset(dataset):
     x = []
     global y
     y = []
-    global point_class
-    point_class = []
     global groups
     global global_time
 
@@ -486,28 +479,19 @@ def setDataset(dataset):
         print("\n", e)
         return False
 
-    groups = file.groupby('cyclenumber') # Agrupamos el dataset por número de bicicleta
+    groups = file.groupby('id') # Agrupamos el dataset por número de bicicleta
 
     for value in groups.groups: # Recorre los grupos cogiendo la primera entrada de ellos para la
-        route_start_timestamp = datetime.strptime((groups.get_group(value).iloc[0])['timestamp'], '%Y-%m-%d %H:%M:%S%z')
-        
-        if(global_time == None):
-            global_time = route_start_timestamp
+        if('timestamp' in  file.columns):
+            route_start_timestamp = datetime.strptime((groups.get_group(value).iloc[0])['timestamp'], '%Y-%m-%d %H:%M:%S%z')
+            if(global_time == None):
+                global_time = route_start_timestamp
 
-        elif(route_start_timestamp < global_time):
-            global_time = route_start_timestamp
+            elif(route_start_timestamp < global_time):
+                global_time = route_start_timestamp
         
         x.append(float((groups.get_group(value).iloc[0])['longitude']))
         y.append(float((groups.get_group(value).iloc[0])['latitude']))
-
-    """
-    input_values = input_values.splitlines()[1::]
-    for point in input_values:
-        splitted_point = point.split(",")
-        x.append(float(splitted_point[0]))
-        y.append(float(splitted_point[1]))
-        point_class.append(float(splitted_point[2]))
-    """
 
     global y_axis_limits
     y_axis_limits = (min(y), max(y))
@@ -521,12 +505,15 @@ def generateRandomDataset(number_of_points_to_be_generated=20):
     generated_random_points = [
         [random.uniform(-2, 2), random.uniform(-2, 2), 0] for x in range(number_of_points_to_be_generated)]
 
+    point_id = 0
     with open("random_dataset.csv", "w") as file:
-        file.write("x,y,class\n")
+        file.write("id,longitude,latitude,class\n")
         for point in generated_random_points:
-            file.write(f"{point[0]},{point[1]},{point[2]}\n")
+            file.write(f"{point_id},{point[0]},{point[1]}\n")
+            point_id = point_id + 1
     print(f"Random dataset generated with {number_of_points_to_be_generated}. File path: {getcwd()}/random_dataset.csv")
 
+    
 
 def execute():
     global reasigned_points
@@ -587,7 +574,7 @@ def execute():
         # Reasigned_points guarda los puntos que variaron para modificarlos en el clúster correspondiente
         # Considero que el dataset ha variado sí hay un x% de puntos que han cambiado su cluster
         reasigned_points, variated = hasSignificantVariation(
-            (x, y, point_class), optimal_centroids, labels, accumulated_moved_points)
+            (x, y), optimal_centroids, labels, accumulated_moved_points)
         print(f"\nCoeficiente de reasignacion: {reassigment_coefficient}")
 
         if (max_iterations > 1):
