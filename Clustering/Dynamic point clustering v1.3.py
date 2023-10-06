@@ -1,5 +1,5 @@
 import datetime
-from datetime import datetime
+from datetime import datetime, timedelta
 import tempfile
 from PIL import Image
 import matplotlib
@@ -15,6 +15,8 @@ matplotlib.use("TKAgg")
 
 # Global vars
 global_time = None # Tiempo de la aplicación para ver cuando reclusterizar
+time_interval = 1
+file = None
 x = []  # Lista de valores x
 y = []  # Lista de valores y
 old_x = []  # Lista de valores x
@@ -57,7 +59,7 @@ delta_m = 0.1
 # Multiplicador de la variación puntos de cluster
 delta_c = 0.9
 # Coeficiente de reasignación
-reassigment_coefficient = 0
+reassignment_coefficient = 0
 #####
 
 
@@ -111,7 +113,9 @@ reclusterization_variables_frame = [
      sg.Input(key="-RCTHRESHOLD-", size=4, default_text=0.1),
      sg.Text("\n")],
     [sg.Text("Numero de agrupaciones entre las que calcular el óptimo (min. 3):"),
-     sg.Input(key="-MAXPOINTCLUST-", size=4, default_text=10)]
+     sg.Input(key="-MAXPOINTCLUST-", size=4, default_text=10), sg.Text("\n")],
+    [sg.Text("Incremento de tiempo global (En minutos):"),
+     sg.Input(key="-DELTATIME-", size=4, default_text=3)]
 ]
 
 layout = [[sg.Frame("SELECCION DE DATASET", dataset_load_frame, font="Any 12")],
@@ -122,7 +126,7 @@ layout = [[sg.Frame("SELECCION DE DATASET", dataset_load_frame, font="Any 12")],
           [sg.Frame("VARIABlES DE RECLUSTERIZACIÓN",
                     reclusterization_variables_frame, font="Any 12")],
           [[[sg.Button('Distribución de puntos actual',), sg.Button(
-              'Mostrar configuración de clústeres actual',), sg.Button('Ejecutar',),], sg.Frame("Salida de consola", frame_layout),],],]
+              'Mostrar última configuración',), sg.Button('Ejecutar',),], sg.Frame("Salida de consola", frame_layout),],],]
 
 window = sg.Window('Dynamic point clustering', layout,
                    resizable=True, element_justification="l")
@@ -140,6 +144,7 @@ def setParameters(values):
     global reassigment_coefficient_threshold
     global delta_c
     global delta_m
+    global time_interval
     plot_columns = eval(values["-COLUMNS-"])
     plot_rows = eval(values["-ROWS-"])
     max_iterations = plot_columns * plot_rows
@@ -150,6 +155,7 @@ def setParameters(values):
     reassigment_coefficient_threshold = eval(
         values["-RCTHRESHOLD-"])
     delta_m = eval(values["-DELTAM-"])
+    time_interval = eval(values["-DELTATIME-"])
     delta_c = 1-delta_m
 
 
@@ -321,7 +327,7 @@ def executeKmeans(max_clusters, reasigned_points):
 
 def hasSignificantVariation(newPoints, centroids, labels, accumulated_moved_points):
     # reasigna los puntos a otro centroide si estos puntos han variado lo suficiente
-    global reassigment_coefficient
+    global reassignment_coefficient
     global last_reclusterization_labels
     reasigned_points = reasignPoints(centroids, labels, newPoints)
 
@@ -332,10 +338,10 @@ def hasSignificantVariation(newPoints, centroids, labels, accumulated_moved_poin
         else:
             reclustered_points_since_last_iteration.append(point[0])
 
-    reassigment_coefficient = (1/len(labels)) * (
+    reassignment_coefficient = (1/len(labels)) * (
         (delta_m * len(accumulated_moved_points)) + (delta_c * len(reclustered_points_since_last_iteration)))
     # Si varían el reclustered_points_percentage_to_recalculate% de los puntos a la vez, se recalculan los clusteres
-    if (reassigment_coefficient > reassigment_coefficient_threshold):
+    if (reassignment_coefficient > reassigment_coefficient_threshold):
         return reasigned_points, True
     else:
         return reasigned_points, False
@@ -389,16 +395,16 @@ def reasignPoints(centroids, labels, newPoints):
     return reasigned_points
 
 
-def add_clusters_to_plot(clusters, centroids, reasigned_points, post_reasigned_points, old_coords):
+def add_clusters_to_plot(clusters, centroids, reasigned_points, post_reasigned_points, old_coords, loner_points=[[], []]):
     global plot_index
     global point_size
 
     old_x = old_coords[0]
     old_y = old_coords[1]
-    ax[plot_index[0]][plot_index[1]].set_ylim(min(y) - 1, max(y) + 1)
-    ax[plot_index[0]][plot_index[1]].set_xlim(min(x) - 1, max(x) + 1)
+    ax[plot_index[0]][plot_index[1]].set_ylim(min(y) - 0.01, max(y) + 0.01)
+    ax[plot_index[0]][plot_index[1]].set_xlim(min(x) - 0.01, max(x) + 0.01)
     ax[plot_index[0]][plot_index[1]].set_title(
-        "Clusters: " + str(len(clusters)) + " | Reasigned points: " + str(len(reasigned_points)))
+        "Cls: " + str(len(clusters)) + " | Rsg pts: " + str(len(reasigned_points)) + " | Occ pts: " + str(len(loner_points)))
     # Puntos que se reasignaron
     reasigned_points_coords = [[], []]
     if (old_x != [] and old_y != []):
@@ -410,7 +416,11 @@ def add_clusters_to_plot(clusters, centroids, reasigned_points, post_reasigned_p
         ax[plot_index[0]][plot_index[1]].plot(
             cluster[0], cluster[1], 'o', markersize=point_size)
         ax[plot_index[0]][plot_index[1]].plot(
-            centroids[0], centroids[1], 'X', markersize=point_size, color="red")
+            centroids[0], centroids[1], 'X', markersize=point_size-2, color="red")
+        
+    ax[plot_index[0]][plot_index[1]].plot(
+        loner_points[0], loner_points[1], '.', markersize=point_size-0.5, color="white")
+
 
     if (len(post_reasigned_points) > 0):
         ax[plot_index[0]][plot_index[1]].plot(
@@ -432,7 +442,7 @@ def add_clusters_to_plot(clusters, centroids, reasigned_points, post_reasigned_p
         plot_index[1] = 0
 
 
-def reasign_and_show(reasigned_points, labels, centroids):
+def reasign_and_show(reasigned_points, labels, centroids, loner_points):
     reasigned_points_index = 0  # Indica por que punto de reasignación voy
     clusters = []
     post_reasigned_points = [[], []]
@@ -459,8 +469,7 @@ def reasign_and_show(reasigned_points, labels, centroids):
             clusters[labels[i]][1].append(y[i])
 
     add_clusters_to_plot(clusters, list(zip(*centroids)),
-                         reasigned_points, post_reasigned_points, (old_x, old_y))
-    print()
+                         reasigned_points, post_reasigned_points, (old_x, old_y), loner_points)
     return labels, post_reasigned_points
 
 
@@ -472,6 +481,7 @@ def setDataset(dataset):
     y = []
     global groups
     global global_time
+    global file
 
     try:
         file = pd.read_csv(dataset)
@@ -480,7 +490,6 @@ def setDataset(dataset):
         return False
 
     groups = file.groupby('id') # Agrupamos el dataset por número de bicicleta
-
     for value in groups.groups: # Recorre los grupos cogiendo la primera entrada de ellos para la
         if('timestamp' in  file.columns):
             route_start_timestamp = datetime.strptime((groups.get_group(value).iloc[0])['timestamp'], '%Y-%m-%d %H:%M:%S%z')
@@ -513,14 +522,56 @@ def generateRandomDataset(number_of_points_to_be_generated=20):
             point_id = point_id + 1
     print(f"Random dataset generated with {number_of_points_to_be_generated}. File path: {getcwd()}/random_dataset.csv")
 
-    
+def updatePoints(old_x, old_y):
+    global global_time
+    global file
+    global x
+    global y
+
+    groups = file.groupby('id')
+
+    loner_points_idx = [] # Puntos que no pertenecen a ningún clúster
+    loner_points = [[], []] # Puntos que no pertenecen a ningún clúster
+    moved_points = [] # Puntos con las posiciones actualizadas
+    point_idx = 0
+    for _, group in groups:
+        interval = group.groupby('route_code')
+        for _, interval_groups in interval:
+            trip_entries = []
+            for _, entry in interval_groups.iterrows():
+                trip_entries.append(entry)
+            if(global_time < datetime.strptime((trip_entries[1])['timestamp'], '%Y-%m-%d %H:%M:%S%z')):
+                x.append(old_x[point_idx])
+                y.append(old_y[point_idx])
+                if global_time >= datetime.strptime((trip_entries[0])['timestamp'], '%Y-%m-%d %H:%M:%S%z') :
+                    loner_points_idx.append(point_idx)
+                    loner_points[0].append(old_x[point_idx])
+                    loner_points[1].append(old_y[point_idx])
+                break
+            x.append(float((trip_entries[1])['longitude']))
+            y.append(float((trip_entries[1])['latitude']))
+            if(point_idx in loner_points_idx):
+                loner_points[0].remove(old_x[point_idx])
+                loner_points[1].remove(old_y[point_idx])
+                loner_points_idx.remove(point_idx)
+            moved_points.append(point_idx)
+            break
+        #print(point_idx, trip_entries[0], "\n", trip_entries[1], "\n", x[point_idx], old_x[point_idx], "\n", y[point_idx], old_y[point_idx])
+        #input()
+        point_idx = point_idx + 1
+
+    return moved_points, loner_points
+            
+
 
 def execute():
+    global global_time
+    global time_interval
     global reasigned_points
     global accumulated_moved_points
     global post_reasigned_points
     # Indica cuándo se debería reclusterizar o reasignar.
-    global reassigment_coefficient
+    global reassignment_coefficient
     global last_reclusterization_labels
     optimal_centroids = []
     labels = []
@@ -563,9 +614,13 @@ def execute():
         old_y_list.append(y)
         x.clear()
         y.clear()
-        # Mueve los puntos con un valor de point_movement_probability% de probabilidad de èxito para cada punto
-        moved_points = movePoints(old_x, old_y, point_movement_probability,
-                                  point_movement_quantity)
+
+        global_time = global_time + timedelta(minutes=time_interval)
+
+
+        # loner_points guarda aquellos puntos que no pertencen a ningún clúster
+        moved_points, loner_points = updatePoints(old_x, old_y)
+
         for point in moved_points:
             if point not in accumulated_moved_points:
                 accumulated_moved_points.append(point)
@@ -575,16 +630,16 @@ def execute():
         # Considero que el dataset ha variado sí hay un x% de puntos que han cambiado su cluster
         reasigned_points, variated = hasSignificantVariation(
             (x, y), optimal_centroids, labels, accumulated_moved_points)
-        print(f"\nCoeficiente de reasignacion: {reassigment_coefficient}")
+        print(f"\nCoeficiente de reasignacion: {reassignment_coefficient}")
 
         if (max_iterations > 1):
             # Reconfiguramos los clusters si muchos puntos han cambiado de cluster en un mismo instante, o si llevamos una acumulación de puntos movidos
             # desde la última reconfiguración de al menos el reclustered_points_percentage_to_recalculate% de los puntos del dataset.
-            if ((reassigment_coefficient > reassigment_coefficient_threshold) or variated):
+            if ((reassignment_coefficient > reassigment_coefficient_threshold) or variated):
                 optimal_centroids, labels, optimal_clusters = executeKmeans(
                     max_clusters_to_calculate, reasigned_points)
                 print("\nClústeres recalculados\n")
-                reassigment_coefficient = 0
+                reassignment_coefficient = 0
                 accumulated_moved_points.clear()
                 reclustered_points_since_last_iteration.clear()
                 last_n_post_reasigned_points_configurations.append([])
@@ -592,10 +647,10 @@ def execute():
                 print("\nLos siguientes puntos se reasignaran de cluster:",
                       reasigned_points)
                 labels, post_reasigned_points = reasign_and_show(
-                    reasigned_points, labels, optimal_centroids)
+                    reasigned_points, labels, optimal_centroids, loner_points)
                 last_n_post_reasigned_points_configurations.append(
                     post_reasigned_points)
-        print("-------------------------------------")
+        print(f"----------------Hora global actual: {global_time}---------------------")
         last_n_reasigned_points_configurations.append(
             reasigned_points)
         last_n_optimal_clusters_configurations.append(optimal_clusters)
@@ -646,7 +701,7 @@ if __name__ == "__main__":
                     plt.show()
                 else:
                     sg.popup("\nERROR\nCargue un dataset antes de ejecutar.")
-            elif event == 'Mostrar configuración de clústeres actual':
+            elif event == 'Mostrar última configuración':
                 if executed_once:
                     image = Image.open(rf"{temp_plot.name}")
                     plt.imshow(image)
