@@ -1,17 +1,18 @@
-import pandas as pd
-from datetime import datetime, timedelta
+import json
 
-file = pd.read_csv('Clustering/Datasets/primeras_ultimas.csv')
+# Specify the JSON file path
+json_file_path = "data.json"
 
-groups = file.groupby('id')
+# Read the existing JSON data from the file
+with open(json_file_path, 'r') as json_file:
+    existing_data = json.load(json_file)
 
-for group_name, group in groups:
-    interval = group.groupby('route_code')
-    for interval_code, interval_groups in interval:
-        trip_interval = []
-        for idx, entry in interval_groups.iterrows():
-            trip_interval.append(datetime.strptime((entry)['timestamp'], '%Y-%m-%d %H:%M:%S%z'))
-        trip_interval[0] = trip_interval[0] + timedelta(minutes=30)
-        print(interval.groups)
-        
-        input()
+# New data to add as a new object (a dictionary)
+new_object = {"name": "Eve", "age": 22, "city": "Boston"}
+
+# Add the new object to the existing data
+existing_data.append(new_object)
+
+# Write the updated data back to the JSON file
+with open(json_file_path, 'w') as json_file:
+    json.dump(existing_data, json_file, indent=4)  # Use indent for formatting
