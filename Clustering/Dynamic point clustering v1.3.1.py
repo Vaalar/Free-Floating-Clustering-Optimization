@@ -384,7 +384,7 @@ def has_reassigned_points(centroids, labels, newPoints):
     return reassigned_points
 
 
-def add_clusters_to_plot(clusters, centroids, reassigned_points, post_reassigned_points, old_coords, loner_points=[[], []], reclustered=False):
+def add_clusters_to_plot(clusters, centroids, reassigned_points, post_reassigned_points, old_coords, occupied_points=[[], []], reclustered=False):
     global plot_index
     global point_size
     global ax
@@ -395,7 +395,7 @@ def add_clusters_to_plot(clusters, centroids, reassigned_points, post_reassigned
     ax.set_ylim(min(y) - 0.01, max(y) + 0.01)
     ax.set_xlim(min(x) - 0.01, max(x) + 0.01)
     ax.set_title(
-        "Cls: " + str(len(clusters)) + " | Rsg pts: " + str(len(reassigned_points)) + " | Occ pts: " + str(len(loner_points[0])) + " | Rec:" + str(reclustered))
+        "Cls: " + str(len(clusters)) + " | Rsg pts: " + str(len(reassigned_points)) + " | Occ pts: " + str(len(occupied_points[0])) + " | Rec:" + str(reclustered))
     # Puntos que se reasignaron
     reassigned_points_coords = [[], []]
     if (old_x != [] and old_y != []):
@@ -410,8 +410,7 @@ def add_clusters_to_plot(clusters, centroids, reassigned_points, post_reassigned
             centroids[0], centroids[1], 'X', markersize=point_size-2, color="red")
     
     ax.plot(
-        loner_points[0], loner_points[1], '.', markersize=point_size-0.5, color="white")
-
+        occupied_points[0], occupied_points[1], '.', markersize=point_size-0.5, color="white")
 
 
     if (len(post_reassigned_points) > 0):
@@ -431,7 +430,7 @@ def add_clusters_to_plot(clusters, centroids, reassigned_points, post_reassigned
 
 
 
-def reassign_points(reassigned_points, labels, centroids, loner_points):
+def reassign_points(reassigned_points, labels, centroids, occupied_points):
     reassigned_points_index = 0  # Indica por que punto de reasignación voy
     clusters = []
     post_reassigned_points = [[], []]
@@ -457,7 +456,7 @@ def reassign_points(reassigned_points, labels, centroids, loner_points):
             clusters[labels[i]][0].append(x[i])
             clusters[labels[i]][1].append(y[i])
 
-    add_clusters_to_plot(clusters, list(zip(*centroids)), reassigned_points, post_reassigned_points, (old_x, old_y), loner_points)
+    add_clusters_to_plot(clusters, list(zip(*centroids)), reassigned_points, post_reassigned_points, (old_x, old_y), occupied_points)
     
     return clusters, labels, post_reassigned_points
 
@@ -516,40 +515,56 @@ def updatePoints(old_x, old_y):
 
     groups = file.groupby('id')
 
-    loner_points_idx = [] # Puntos que no pertenecen a ningún clúster
-    loner_points = [[], []] # Puntos ocupados
+    occupied_points_idx = [] # Puntos que no pertenecen a ningún clúster
+    occupied_points = [[], []] # Puntos ocupados
     moved_points = [] # Puntos con las posiciones actualizadas
     point_idx = 0
-    for _, group in groups:
+    for _, group in groups: # Iteracion de grupos
         interval = group.groupby('route_code')
-        for _, interval_groups in interval:
+        current_entry_idx = 0
+        for _, interval_groups in interval: # Iteracion de los subgrupos de rutas
             trip_entries = []
-            for _, entry in interval_groups.iterrows():
+            for _, entry in interval_groups.iterrows(): # Iteracion de las 2 entradas de un intervalo
                 trip_entries.append(entry)
+            if len(trip_entries) == 2:
+                if(global_time >= datetime.strptime((trip_entries[1])['timestamp'], '%Y-%m-%d %H:%M:%S%z')): # Si todos los tiempos son menores que el global
+                        current_entry_idx = current_entry_idx + 1
+                        if(current_entry_idx == len(interval)):
+                            x.append(float((trip_entries[1])['longitude']))
+                            y.append(float((trip_entries[1])['latitude']))
+                            if(x[-1] != old_x[point_idx] or y[-1] != old_y[point_idx]):
+                                moved_points.append(point_idx)
+                            break
 
-            if(global_time < datetime.strptime((trip_entries[1])['timestamp'], '%Y-%m-%d %H:%M:%S%z')):
-                x.append(old_x[point_idx])
-                y.append(old_y[point_idx])
-                if global_time >= datetime.strptime((trip_entries[0])['timestamp'], '%Y-%m-%d %H:%M:%S%z'):
-                    if(point_idx not in loner_points_idx):
-                        loner_points_idx.append(point_idx)
-                        loner_points[0].append(old_x[point_idx])
-                        loner_points[1].append(old_y[point_idx])
+                elif(global_time < datetime.strptime((trip_entries[1])['timestamp'], '%Y-%m-%d %H:%M:%S%z')): # Si un tiempo es mayor que el global
+                    x.append(float((trip_entries[0])['longitude']))
+                    y.append(float((trip_entries[0])['latitude']))
+                    if(global_time >= datetime.strptime((trip_entries[0])['timestamp'], '%Y-%m-%d %H:%M:%S%z')):
+                        occupied_points_idx.append(point_idx)
+                        occupied_points[0].append((trip_entries[0])['longitude'])
+                        occupied_points[1].append((trip_entries[0])['latitude'])
+                    if(x[-1] != old_x[point_idx] or y[-1] != old_y[point_idx]):
+                        moved_points.append(point_idx)
+                    break
+                
                 else:
-                    if(point_idx in loner_points_idx):
-                        loner_points[0].remove(old_x[point_idx])
-                        loner_points[1].remove(old_y[point_idx])
-                        loner_points_idx.remove(point_idx)
-                break
+                    x.append(float((trip_entries[1])['longitude']))
+                    y.append(float((trip_entries[1])['latitude']))
+                    if(x[-1] != old_x[point_idx] or y[-1] != old_y[point_idx]):
+                        moved_points.append(point_idx)
+                    break
             else:
-                x.append(float((trip_entries[1])['longitude']))
-                y.append(float((trip_entries[1])['latitude']))
-                moved_points.append(point_idx)
-                break
+                x.append(float((trip_entries[0])['longitude']))
+                y.append(float((trip_entries[0])['latitude']))
+                occupied_points_idx.append(point_idx)
+                occupied_points[0].append((trip_entries[0])['longitude'])
+                occupied_points[1].append((trip_entries[0])['latitude'])
+                if(x[-1] != old_x[point_idx] or y[-1] != old_y[point_idx]):
+                    moved_points.append(point_idx)
 
         point_idx = point_idx + 1
 
-    return moved_points, loner_points
+    return moved_points, occupied_points
             
 
 
@@ -594,7 +609,7 @@ def execute(output_file_name):
     old_x_list.append(old_x.copy())
     old_y_list.append(old_y.copy())
     last_reclusterization_labels = labels.copy()
-    loner_points = []
+    occupied_points = []
     with open(f"{output_file_name}.json", "w") as file:
         data = [{
             'time': str(global_time),
@@ -623,8 +638,8 @@ def execute(output_file_name):
         global_time = global_time + timedelta(minutes=time_interval)
 
 
-        # loner_points guarda aquellos puntos que no pertencen a ningún clúster
-        moved_points, loner_points = updatePoints(old_x, old_y)
+        # occupied_points guarda aquellos puntos que no pertencen a ningún clúster
+        moved_points, occupied_points = updatePoints(old_x, old_y)
 
         for point in moved_points:
             if point not in accumulated_moved_points:
@@ -656,13 +671,13 @@ def execute(output_file_name):
                 'reassigned': reassigned_points,
                 'post_reassigned': [],
                 'old_coords': (old_x, old_y),
-                'occupied': loner_points
+                'occupied': occupied_points
             }
         else:  # Si no ha variado lo suficiente, reasignamos los puntos a los clusteres correspodientes y los representamos
             print("\nLos siguientes puntos se reasignaran de cluster:",
                     reassigned_points)
             optimal_clusters, labels, post_reassigned_points = reassign_points(
-                reassigned_points, labels, optimal_centroids, loner_points)
+                reassigned_points, labels, optimal_centroids, occupied_points)
             last_n_post_reassigned_points_configurations.append(
                 post_reassigned_points)
             data = {
@@ -673,7 +688,7 @@ def execute(output_file_name):
                 'reassigned': reassigned_points,
                 'post_reassigned': post_reassigned_points,
                 'old_coords': (old_x, old_y),
-                'occupied': loner_points
+                'occupied': occupied_points
             }
         print(f"---------------------Hora global actual: {global_time}---------------------")
         last_n_reassigned_points_configurations.append(

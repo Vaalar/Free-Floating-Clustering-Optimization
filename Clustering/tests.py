@@ -1,18 +1,17 @@
-import json
+import pandas as pd
 
-# Specify the JSON file path
-json_file_path = "data.json"
+# Create a sample DataFrame
+data = {'Group': ['A', 'B', 'A', 'C', 'B', 'C'],
+        'Value': [1, 2, 3, 4, 5, 6]}
 
-# Read the existing JSON data from the file
-with open(json_file_path, 'r') as json_file:
-    existing_data = json.load(json_file)
+df = pd.DataFrame(data)
 
-# New data to add as a new object (a dictionary)
-new_object = {"name": "Eve", "age": 22, "city": "Boston"}
+# Group the DataFrame by the 'Group' column
+grouped = df.groupby('Group')
 
-# Add the new object to the existing data
-existing_data.append(new_object)
-
-# Write the updated data back to the JSON file
-with open(json_file_path, 'w') as json_file:
-    json.dump(existing_data, json_file, indent=4)  # Use indent for formatting
+# Iterate over each subgroup
+for group_name, group_data in grouped:
+    print(f"Group Name: {group_name}")
+    for _, data in group_data.sor:
+        print(data)
+        print("\n")
