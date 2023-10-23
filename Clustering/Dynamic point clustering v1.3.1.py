@@ -282,7 +282,7 @@ def kmeans(k="Number of centroids", d="Data points"):
     return centroids, clusters, labels
 
 
-def executeKmeans(max_clusters, reassigned_points):
+def executeKmeans(max_clusters, reassigned_points, occupied_points=[[], []]):
     n_max_clusteres = max_clusters
     n_clusters_list = []
     clusters_CH_index = []
@@ -310,7 +310,7 @@ def executeKmeans(max_clusters, reassigned_points):
     labels = labels_list[i]
     centroids = centroids_list[i]
 
-    add_clusters_to_plot(clusters, list(zip(*centroids)), reassigned_points, [], (old_x, old_y), reclustered=True)
+    add_clusters_to_plot(clusters, list(zip(*centroids)), reassigned_points, [], (old_x, old_y), occupied_points, reclustered=True)
     return centroids, labels, clusters
 
 
@@ -492,6 +492,9 @@ def setDataset(dataset):
         x.append(float((groups.get_group(value).iloc[0])['longitude']))
         y.append(float((groups.get_group(value).iloc[0])['latitude']))
 
+    
+
+
     end_time = datetime.strptime(file['timestamp'].max(), '%Y-%m-%d %H:%M:%S%z')
 
     global y_axis_limits
@@ -656,7 +659,7 @@ def execute(output_file_name):
         # desde la última reconfiguración de al menos el reclustered_points_percentage_to_recalculate% de los puntos del dataset.
         if ((reassignment_coefficient > reassigment_coefficient_threshold) or variated):
             optimal_centroids, labels, optimal_clusters = executeKmeans(
-                max_clusters_to_calculate, reassigned_points)
+                max_clusters_to_calculate, reassigned_points, occupied_points)
             reclustered = True
             print("\nClústeres recalculados\n")
             reassignment_coefficient = 0

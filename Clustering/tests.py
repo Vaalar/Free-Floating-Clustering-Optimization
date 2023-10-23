@@ -1,17 +1,29 @@
-import pandas as pd
+import PySimpleGUI as sg
+import threading
 
-# Create a sample DataFrame
-data = {'Group': ['A', 'B', 'A', 'C', 'B', 'C'],
-        'Value': [1, 2, 3, 4, 5, 6]}
+# Function that represents the main application logic
+def main_application_logic():
+    # Your main application logic here
+    while True:
+        sg.popup("Main Application Logic is running!")
 
-df = pd.DataFrame(data)
+# Define the layout of the GUI
+layout = [
+    [sg.Text("Main Application Logic in a Thread")],
+    [sg.Button('Start')],
+    [sg.Exit()]
+]
 
-# Group the DataFrame by the 'Group' column
-grouped = df.groupby('Group')
+window = sg.Window('Threaded GUI', layout)
 
-# Iterate over each subgroup
-for group_name, group_data in grouped:
-    print(f"Group Name: {group_name}")
-    for _, data in group_data.sor:
-        print(data)
-        print("\n")
+while True:
+    event, values = window.read()
+
+    if event == sg.WIN_CLOSED:
+        break
+    if event == 'Start':
+        # Create a thread for the main application logic
+        t = threading.Thread(target=main_application_logic)
+        t.start()
+
+window.close()
