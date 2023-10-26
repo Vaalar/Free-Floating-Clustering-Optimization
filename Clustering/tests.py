@@ -1,29 +1,25 @@
 import PySimpleGUI as sg
-import threading
 
-# Function that represents the main application logic
-def main_application_logic():
-    # Your main application logic here
-    while True:
-        sg.popup("Main Application Logic is running!")
-
-# Define the layout of the GUI
 layout = [
-    [sg.Text("Main Application Logic in a Thread")],
-    [sg.Button('Start')],
-    [sg.Exit()]
+    [sg.Text('Progress Bar Example')],
+    [sg.ProgressBar(100, orientation='h', size=(20, 20), key='-PROGRESS-')],
+    [sg.Text('', size=(15, 1), key='-PROGRESS_TEXT-')],
+    [sg.Button('Start'), sg.Button('Exit')],
 ]
 
-window = sg.Window('Threaded GUI', layout)
+window = sg.Window('Progress Bar Example', layout, finalize=True)
 
 while True:
     event, values = window.read()
 
-    if event == sg.WIN_CLOSED:
+    if event in (sg.WINDOW_CLOSED, 'Exit'):
         break
-    if event == 'Start':
-        # Create a thread for the main application logic
-        t = threading.Thread(target=main_application_logic)
-        t.start()
+    elif event == 'Start':
+        for i in range(101):
+            window['-PROGRESS-'].update(i)
+            window['-PROGRESS_TEXT-'].update(f'Progress: {i}%')
+            window.Refresh()  # Force a GUI refresh
+            sg.popup_animated(sg.DEFAULT_BASE64_LOADING_GIF, location=(300, 150))
+        sg.popup_animated(None)
 
 window.close()

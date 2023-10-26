@@ -2,13 +2,13 @@ import datetime
 import json
 from datetime import datetime, timedelta, timezone
 import time
+from tqdm import tqdm
 import tempfile
 from PIL import Image
 import matplotlib
 import matplotlib.pyplot as plt
 import random
 import pandas as pd
-from tqdm import tqdm
 import math
 import PySimpleGUI as sg
 from os import getcwd
@@ -19,7 +19,7 @@ import threading
 # Global vars
 global_time = None # Tiempo de la aplicación para ver cuando reclusterizar
 end_time = None # Tiempo de fin del dataset
-time_interval = 1
+time_interval = 3 # Tiempo de incremento del tiempo global en cada ejecución
 file = None
 x = []  # Lista de valores x
 y = []  # Lista de valores y
@@ -57,7 +57,8 @@ delta_m = 0.1
 delta_c = 0.9
 # Coeficiente de reasignación
 reassignment_coefficient = 0
-# Booleano de aborto
+# Velocidad de simulación (Tiempo a dormir entre cada configuración de clusteres)
+simulation_speed = 0.1
 #####
 
 
@@ -70,7 +71,7 @@ point_size = 5
 sg.theme("DarkTanBlue")
 
 frame_layout = [[sg.Multiline("", size=(72, 15), autoscroll=True,
-                              reroute_stdout=True, reroute_stderr=False, key='-OUTPUT-', expand_x=True, expand_y=True)]]
+                              reroute_stdout=True, reroute_stderr=True, key='-OUTPUT-', expand_x=True, expand_y=True)]]
 
 dataset_load_frame = [
     [sg.InputText(key="-FILE-", expand_x=True),
@@ -92,14 +93,16 @@ reclusterization_variables_frame = [
     [sg.Text("Delta_c (Decimales [0.0, 1.0]):", expand_x=True),
      sg.Input(key="-DELTAC-", size=9, default_text=f"{str(1-delta_m)}", readonly=True, expand_x=True, text_color="black")],
     [sg.Text("Incremento de tiempo global (En minutos):", expand_x=True),
-     sg.Input(key="-DELTATIME-", size=4, default_text=3, expand_x=True)],
-    [sg.Text("Umbral del coeficiente de reasignación para reclusterizar (Decimales [0.0, 1.0]):", expand_x=True),
+     sg.Input(key="-DELTATIME-", size=4, default_text=time_interval, expand_x=True)],
+    [sg.Text("Umbral del coeficiente para reclusterizar (Decimales [0.0, 1.0]):", expand_x=True),
      sg.Input(key="-RCTHRESHOLD-", size=4, default_text=0.1, expand_x=True),
      sg.Text("\n", expand_x=True)],
     [sg.Text("Numero de agrupaciones entre las que calcular el óptimo (min. 3):", expand_x=True),
      sg.Input(key="-MAXPOINTCLUST-", size=4, default_text=10, expand_x=True), sg.Text("\n", expand_x=True)],
     [sg.Text("Tamaño de los puntos:", expand_x=True),
      sg.Input(key="-POINTSIZE-", size=4, default_text=point_size, expand_x=True), sg.Text("\n", expand_x=True)],
+    [sg.Text("Velocidad de simulación (Tiempo en segundos\nque se representa cada gráfico (Decimales [0.0, 1.0])):", expand_x=True),
+     sg.Input(key="-SIMSPEED-", size=4, default_text=simulation_speed, expand_x=True), sg.Text("\n", expand_x=True)],
 ]
 
 layout = [
@@ -114,6 +117,7 @@ layout = [
         sg.VerticalSeparator(),
         sg.Column([
             [sg.Canvas(key="-CANVAS-", expand_x=True, expand_y=True)],
+            [sg.Checkbox('Alternar desplazamiento de puntos reasignados. (Requiere recargar la entrada)', key='-TOGGLETRACE-', default=True)],
             [sg.Button('Cargar anterior', expand_x=True, disabled=True, key="-LOADPREV-", button_color="grey"), sg.Button('Cargar siguiente', expand_x=True, disabled=True, key="-LOADNEXT-", button_color="grey"), sg.Button('Borrar gráfico', expand_x=True, button_color="grey", disabled=True, key="-ERASEPLOT-")],
             [sg.Button('Abortar simulación', key="-ABORT-", expand_x=True, disabled=True, button_color="grey"),]
         ], expand_x=True, expand_y=True, justification="center"),
@@ -138,6 +142,7 @@ def setParameters(values):
     global delta_c
     global delta_m
     global time_interval
+    global simulation_speed
     max_clusters_to_calculate = eval(values["-MAXPOINTCLUST-"])
     point_size = eval(values["-POINTSIZE-"])
     reassigment_coefficient_threshold = eval(
@@ -145,12 +150,14 @@ def setParameters(values):
     delta_m = eval(values["-DELTAM-"])
     time_interval = eval(values["-DELTATIME-"])
     delta_c = 1-delta_m
+    simulation_speed = eval(values["-SIMSPEED-"])
     window["-MAXPOINTCLUST-"].update(max_clusters_to_calculate)
     window["-POINTSIZE-"].update(point_size)
     window["-RCTHRESHOLD-"].update(reassigment_coefficient_threshold)
     window["-DELTATIME-"].update(time_interval)
     window["-DELTAM-"].update(delta_m)
     window["-DELTAC-"].update(delta_c)
+    window["-SIMSPEED-"].update(simulation_speed)
 
 def mean(list):  # Función que calcula la media de una lista
     acc = 0
@@ -415,11 +422,11 @@ def add_clusters_to_plot(clusters, centroids, reassigned_points, post_reassigned
         occupied_points[0], occupied_points[1], '.', markersize=point_size-0.5, color="white")
 
 
-    if (len(post_reassigned_points) > 0):
+    if (len(post_reassigned_points) > 0 and values["-TOGGLETRACE-"]):
         ax.plot(
             reassigned_points_coords[0], reassigned_points_coords[1], 'D', markersize=point_size-1, color="black")
 
-    if (post_reassigned_points != [] and old_x != [] and old_y != []):
+    if (post_reassigned_points != [] and old_x != [] and old_y != [] and values["-TOGGLETRACE-"]):
         for i in range(len(reassigned_points_coords[0])):
             points = [[], []]
             points[0].append(reassigned_points_coords[0])
@@ -679,6 +686,7 @@ def execute(output_file_name):
                 'time': str(global_time),
                 'reclustered': reclustered,
                 'clusters': optimal_clusters,
+                'labels': labels,
                 'centroids': optimal_centroids,
                 'reassigned': reassigned_points,
                 'post_reassigned': [],
@@ -696,6 +704,7 @@ def execute(output_file_name):
                 'time': str(global_time),
                 'reclustered': reclustered,
                 'clusters': optimal_clusters,
+                'labels': labels,
                 'centroids': optimal_centroids,
                 'reassigned': reassigned_points,
                 'post_reassigned': post_reassigned_points,
@@ -713,9 +722,10 @@ def execute(output_file_name):
         if(dump_it == 50):
             with open(f"{output_file_name}.json", "w") as file:
                 json.dump(json_file, file, indent=4)  # Use indent for formatting
-            dump_it = 0
+            dump_it = -1
         dump_it = dump_it + 1
         window.refresh()
+        
     with open(f"{output_file_name}.json", "w") as file:
         json.dump(json_file, file, indent=4)  # Use indent for formatting
     window["-ABORT-"].update(disabled=True)
@@ -725,6 +735,11 @@ def execute(output_file_name):
     window["-ERASEPLOT-"].update(button_color="red")
 
 def simulate(jsonFile, sleepTime):
+    window["-ABORT-"].update(disabled=True)
+    if threading.current_thread().name == "MainThread":
+        print("Mainthread exiting")
+        window.refresh()
+        return  # Skip the function for the main thread
     global x
     global y
     x = jsonFile[0]["old_coords"][0]
@@ -735,18 +750,20 @@ def simulate(jsonFile, sleepTime):
     elif(sleepTime > 0.1):
         sleepTime = 1
         print("Tiempo escogido mayor que 2. Autocorrigiendo a 2.")
-    for entry in jsonFile:
+    for entry in tqdm(jsonFile, unit="item"):
         if(threading.Event().is_set()):
             print("Simulación abortada")
             return
         add_clusters_to_plot(entry['clusters'], list(zip(*entry['centroids'])), entry['reassigned'], entry['post_reassigned'], entry['old_coords'], entry['occupied'], entry['reclustered'])
         time.sleep(sleepTime)
+        print("\n")
         window.refresh()
-        add_clusters_to_plot(entry['clusters'], list(zip(*entry['centroids'])), entry['reassigned'], entry['post_reassigned'], entry['old_coords'], entry['occupied'], entry['reclustered'])
+
     window["-ABORT-"].update(disabled=True)
     window["-ABORT-"].update(button_color="grey")
     window["-ERASEPLOT-"].update(disabled=False)
     window["-ERASEPLOT-"].update(button_color="red")
+    window["-TOGGLETRACE-"].update(disabled=False)
     print("--------------------------------\nFIN DE LA SIMULACIÓN\n--------------------------------")
     
 
@@ -801,10 +818,9 @@ if __name__ == "__main__":
                     if not window["-ERASEPLOT-"].Disabled:
                         window["-ERASEPLOT-"].update(disabled=True)
                         window["-ERASEPLOT-"].update(button_color="grey")
-                    t = threading.Thread(target=execute, args=(text, ))
-                    window["-ABORT-"].update(disabled=False)
-                    window["-ABORT-"].update(button_color="red")
-                    t.start()                   
+                    window["-TOGGLETRACE-"].update(disabled=True)
+                    execute(text)
+                    window["-TOGGLETRACE-"].update(disabled=False)
         elif event == '-ERASEPLOT-':
             ax.clear()
             canvas.draw()
@@ -820,7 +836,6 @@ if __name__ == "__main__":
                 with open(values["-JSONFILE-"], "r") as jsonFile:
                     data = json.load(jsonFile)
                 currentConfig = currentConfig - 1
-                print(f"Entrada {currentConfig}/{len(data)} cargada\n")
                 showCertainConfiguration(data, currentConfig)
                 if(currentConfig == 0):
                     window["-LOADPREV-"].update(disabled=True)
@@ -830,6 +845,7 @@ if __name__ == "__main__":
                     window["-LOADPREV-"].update(button_color="blue")
                     window["-LOADNEXT-"].update(disabled=False)
                     window["-LOADNEXT-"].update(button_color="blue")
+                print(f"Entrada {currentConfig}/{len(data)-1} cargada.\n")
 
             except Exception as e:
                 print(e)
@@ -848,7 +864,7 @@ if __name__ == "__main__":
                     window["-LOADPREV-"].update(button_color="blue")
                     window["-LOADNEXT-"].update(disabled=False)
                     window["-LOADNEXT-"].update(button_color="blue")
-                print(f"Entrada {currentConfig}/{len(data) - 1} cargada\n")
+                print(f"Entrada {currentConfig}/{len(data) - 1} cargada.\n")
 
             except Exception as e:
                 print(e)
@@ -867,12 +883,10 @@ if __name__ == "__main__":
                 if not window["-ERASEPLOT-"].Disabled:
                     window["-ERASEPLOT-"].update(disabled=True)
                     window["-ERASEPLOT-"].update(button_color="grey")
-                t = threading.Thread(target=simulate, args=(data, float(sg.popup_get_text("Introduce el tiempo de visualización de cada instante de tiempo [0, 2] segundos"))))
-                main_app_t = threading.Thread()
-                window["-ABORT-"].update(disabled=False)
+                window["-TOGGLETRACE-"].update(disabled=True)
+                t = threading.Thread(target=simulate, args=(data, simulation_speed))
                 window["-ABORT-"].update(button_color="red")
                 t.start()
-
             except Exception as e:
                 print(e)
 
@@ -917,5 +931,9 @@ if __name__ == "__main__":
             t.join()
             print("Simulación abortada")
             threading.Event().clear()
+        elif event == "-TOGGLETRACE-":
+            values["-TOGGLETRACE-"] = not values["-TOGGLETRACE-"]
+            print("Recargue la entrada para que los cambios hagan efecto.")
 
     window.close()
+
