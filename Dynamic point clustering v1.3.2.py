@@ -306,7 +306,7 @@ def executeKmeans(max_clusters, reassigned_points, occupied_points=[[], []]):
             centroids_list.append(centroids)
             labels_list.append(labels)
 
-        except Exception as overfitting:
+        except Exception:
             print(f"k={n_clusters} - Configuración con clústeres vacíos detectada. Límite establecido en {n_clusters - 1} para esta configuración de puntos.")
             break
 
