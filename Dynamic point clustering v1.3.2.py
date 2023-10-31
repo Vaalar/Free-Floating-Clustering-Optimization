@@ -3,15 +3,11 @@ import json
 from datetime import datetime, timedelta, timezone
 import time
 from tqdm import tqdm
-import tempfile
-from PIL import Image
-import matplotlib
 import matplotlib.pyplot as plt
 import random
 import pandas as pd
 import math
 import PySimpleGUI as sg
-from os import getcwd
 from sklearn import metrics
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import threading
@@ -58,20 +54,18 @@ delta_c = 0.9
 # Coeficiente de reasignación
 reassignment_coefficient = 0
 # Velocidad de simulación (Tiempo a dormir entre cada configuración de clusteres)
-simulation_speed = 0.1
 #####
 
 
-plot_index = [0, 0]
-
 # Confifuración de la IU
-
 point_size = 5
+
+simulation_speed = 0.1
 
 sg.theme("DarkTanBlue")
 
 frame_layout = [[sg.Multiline("", size=(72, 15), autoscroll=True,
-                              reroute_stdout=True, reroute_stderr=True, key='-OUTPUT-', expand_x=True, expand_y=True)]]
+                              reroute_stdout=True, reroute_stderr=False, key='-OUTPUT-', expand_x=True, expand_y=True)]]
 
 dataset_load_frame = [
     [sg.InputText(key="-FILE-", expand_x=True),
@@ -302,15 +296,19 @@ def executeKmeans(max_clusters, reassigned_points, occupied_points=[[], []]):
 
     # Calculamos N clústeres para comprobar cual es la agrupación óptima.
     for n_clusters in range(2, n_max_clusteres):
-        # Capturamos los clústeres y las etiquetas
-        centroids, clusters, labels = kmeans(n_clusters, (x, y))
+        try:
+            # Capturamos los clústeres y las etiquetas
+            centroids, clusters, labels = kmeans(n_clusters, (x, y))
+            # Calculamos el índice de Calinski-Harabasz utilizando el método proprocionado por la biblioteca scikit.learn.
+            clusters_CH_index.append(
+                metrics.calinski_harabasz_score(list(zip(x, y)), labels))
+            n_clusters_list.append(clusters)
+            centroids_list.append(centroids)
+            labels_list.append(labels)
 
-        # Calculamos el índice de Calinski-Harabasz utilizando el método proprocionado por la biblioteca scikit.learn.
-        clusters_CH_index.append(
-            metrics.calinski_harabasz_score(list(zip(x, y)), labels))
-        n_clusters_list.append(clusters)
-        centroids_list.append(centroids)
-        labels_list.append(labels)
+        except Exception as overfitting:
+            print(f"k={n_clusters} - Configuración con clústeres vacíos detectada. Límite establecido en {n_clusters - 1} para esta configuración de puntos.")
+            break
 
     # Escogemos la agrupación de clústeres con el mayor índice como el óptimo relativo
     i = clusters_CH_index.index(max(clusters_CH_index))
@@ -394,7 +392,6 @@ def has_reassigned_points(centroids, labels, newPoints):
 
 
 def add_clusters_to_plot(clusters, centroids, reassigned_points, post_reassigned_points, old_coords, occupied_points=[[], []], reclustered=False):
-    global plot_index
     global point_size
     global ax
 
@@ -416,25 +413,30 @@ def add_clusters_to_plot(clusters, centroids, reassigned_points, post_reassigned
         ax.plot(
             cluster[0], cluster[1], 'o', markersize=point_size)
         ax.plot(
-            centroids[0], centroids[1], 'X', markersize=point_size-2, color="red")
+            centroids[0], centroids[1], 'X', markersize=point_size-2, color="black")
     
     ax.plot(
         occupied_points[0], occupied_points[1], '.', markersize=point_size-0.5, color="white")
 
-
-    if (len(post_reassigned_points) > 0 and values["-TOGGLETRACE-"]):
-        ax.plot(
-            reassigned_points_coords[0], reassigned_points_coords[1], 'D', markersize=point_size-1, color="black")
-
     if (post_reassigned_points != [] and old_x != [] and old_y != [] and values["-TOGGLETRACE-"]):
-        for i in range(len(reassigned_points_coords[0])):
-            points = [[], []]
-            points[0].append(reassigned_points_coords[0])
-            points[0].append(post_reassigned_points[0])
-            points[1].append(reassigned_points_coords[1])
-            points[1].append(post_reassigned_points[1])
-            ax.plot(
-                points[0], points[1], '-', markersize=point_size+2, color="black")
+        start_coords = list(zip(reassigned_points_coords[0], reassigned_points_coords[1]))
+        end_coords = list(zip(post_reassigned_points[0], post_reassigned_points[1]))
+        x_limit = plt.xlim()[1] - plt.xlim()[0]
+        y_limit = plt.ylim()[1] - plt.ylim()[0]
+        for entry in zip(start_coords, end_coords):
+            # Dibuja el recorrido de un punto
+            arrow_dx = entry[1][0] - entry[0][0]
+            arrow_dy = entry[1][1] - entry[0][1]
+            arrow_length = (arrow_dx**2 + arrow_dy**2)**0.5
+            head_size = 0.01 * min(x_limit, y_limit)
+            tail_width = 0.001 * min(x_limit, y_limit)
+            head_length = head_size
+            arrow_dx_adjusted = arrow_dx - (head_length / arrow_length) * arrow_dx
+            arrow_dy_adjusted = arrow_dy - (head_length / arrow_length) * arrow_dy
+
+            plt.arrow(entry[0][0], entry[0][1], arrow_dx_adjusted, arrow_dy_adjusted,
+                    head_width=head_size, head_length=head_length, width=tail_width, fc='grey', ec='grey', zorder=2)
+
     canvas.draw()
 
 
@@ -673,7 +675,7 @@ def execute(output_file_name):
 
         # Reconfiguramos los clusters si muchos puntos han cambiado de cluster en un mismo instante, o si llevamos una acumulación de puntos movidos
         # desde la última reconfiguración de al menos el reclustered_points_percentage_to_recalculate% de los puntos del dataset.
-        if ((reassignment_coefficient > reassigment_coefficient_threshold) or variated):
+        if ((reassignment_coefficient >= reassigment_coefficient_threshold) or variated):
             optimal_centroids, labels, optimal_clusters = executeKmeans(
                 max_clusters_to_calculate, reassigned_points, occupied_points)
             reclustered = True
@@ -750,7 +752,7 @@ def simulate(jsonFile, sleepTime):
     elif(sleepTime > 0.1):
         sleepTime = 1
         print("Tiempo escogido mayor que 2. Autocorrigiendo a 2.")
-    for entry in tqdm(jsonFile, unit="item"):
+    for entry in tqdm(jsonFile, unit="item", ascii=True):
         if(threading.Event().is_set()):
             print("Simulación abortada")
             return
@@ -931,9 +933,6 @@ if __name__ == "__main__":
             t.join()
             print("Simulación abortada")
             threading.Event().clear()
-        elif event == "-TOGGLETRACE-":
-            values["-TOGGLETRACE-"] = not values["-TOGGLETRACE-"]
-            print("Recargue la entrada para que los cambios hagan efecto.")
 
     window.close()
 

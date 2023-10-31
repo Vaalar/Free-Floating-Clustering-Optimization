@@ -1,25 +1,18 @@
 import PySimpleGUI as sg
 
 layout = [
-    [sg.Text('Progress Bar Example')],
-    [sg.ProgressBar(100, orientation='h', size=(20, 20), key='-PROGRESS-')],
-    [sg.Text('', size=(15, 1), key='-PROGRESS_TEXT-')],
-    [sg.Button('Start'), sg.Button('Exit')],
+    [sg.Text('Elemento que se expandirá'), sg.InputText(key='-EXPAND-', size=(20, 1), expand_x=True)],
+    [sg.Button('Enviar'), sg.Button('Cancelar')]
 ]
 
-window = sg.Window('Progress Bar Example', layout, finalize=True)
+window = sg.Window('Ejemplo de expansión', layout, resizable=True, finalize=True)
+
+# Definir la expansión máxima del elemento en dirección X e Y
 
 while True:
     event, values = window.read()
 
-    if event in (sg.WINDOW_CLOSED, 'Exit'):
+    if event == sg.WIN_CLOSED or event == 'Cancelar':
         break
-    elif event == 'Start':
-        for i in range(101):
-            window['-PROGRESS-'].update(i)
-            window['-PROGRESS_TEXT-'].update(f'Progress: {i}%')
-            window.Refresh()  # Force a GUI refresh
-            sg.popup_animated(sg.DEFAULT_BASE64_LOADING_GIF, location=(300, 150))
-        sg.popup_animated(None)
 
 window.close()
