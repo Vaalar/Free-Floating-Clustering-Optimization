@@ -301,8 +301,9 @@ def executeKmeans(max_clusters, reassigned_points, occupied_points=[[], []]):
             # Capturamos los clústeres y las etiquetas
             centroids, clusters, labels = kmeans(n_clusters, (x, y))
             # Calculamos el índice de Calinski-Harabasz utilizando el método proprocionado por la biblioteca scikit.learn.
+            ch_index = metrics.calinski_harabasz_score(list(zip(x, y)), labels)
             clusters_CH_index.append(
-                metrics.calinski_harabasz_score(list(zip(x, y)), labels))
+                ch_index)
             n_clusters_list.append(clusters)
             centroids_list.append(centroids)
             labels_list.append(labels)
@@ -319,7 +320,7 @@ def executeKmeans(max_clusters, reassigned_points, occupied_points=[[], []]):
     centroids = centroids_list[i]
 
     add_clusters_to_plot(clusters, list(zip(*centroids)), reassigned_points, [], (old_x, old_y), occupied_points, reclustered=True)
-    return centroids, labels, clusters
+    return centroids, labels, clusters, ch_index
 
 
 def hasSignificantVariation(newPoints, centroids, labels, accumulated_moved_points):
@@ -618,7 +619,7 @@ def execute(output_file_name):
     old_y_list.clear()
     # optimal_centroids Almacena los centroides de la configuración óptima relativa hallada
     # labels Almacena el índice de el clúster al que está asignado cada punto
-    optimal_centroids, labels, optimal_clusters = executeKmeans(
+    optimal_centroids, labels, optimal_clusters, ch_index = executeKmeans(
         max_clusters_to_calculate, reassigned_points)
     last_n_optimal_clusters_configurations.append(optimal_clusters)
     last_n_optimal_centroids_configuration.append(optimal_centroids)
@@ -635,6 +636,7 @@ def execute(output_file_name):
             'time': str(global_time),
             'reclustered': True,
             'clusters': optimal_clusters,
+            'ch_index': ch_index,
             'centroids': optimal_centroids,
             'reassigned': reassigned_points,
             'post_reassigned': [[], []],
@@ -679,7 +681,7 @@ def execute(output_file_name):
         # Reconfiguramos los clusters si muchos puntos han cambiado de cluster en un mismo instante, o si llevamos una acumulación de puntos movidos
         # desde la última reconfiguración de al menos el reclustered_points_percentage_to_recalculate% de los puntos del dataset.
         if ((reassignment_coefficient >= reassigment_coefficient_threshold) or variated):
-            optimal_centroids, labels, optimal_clusters = executeKmeans(
+            optimal_centroids, labels, optimal_clusters, ch_index = executeKmeans(
                 max_clusters_to_calculate, reassigned_points, occupied_points)
             reclustered = True
             print("\nClústeres recalculados\n")
@@ -691,6 +693,7 @@ def execute(output_file_name):
                 'time': str(global_time),
                 'reclustered': reclustered,
                 'clusters': optimal_clusters,
+                'ch_index': ch_index,
                 'labels': labels,
                 'centroids': optimal_centroids,
                 'reassigned': reassigned_points,
@@ -709,6 +712,7 @@ def execute(output_file_name):
                 'time': str(global_time),
                 'reclustered': reclustered,
                 'clusters': optimal_clusters,
+                'ch_index': ch_index,
                 'labels': labels,
                 'centroids': optimal_centroids,
                 'reassigned': reassigned_points,

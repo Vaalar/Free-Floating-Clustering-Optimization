@@ -1,18 +1,9 @@
-import PySimpleGUI as sg
+a = [[1,2,3], [4,5,6]]
+b = [[1,2,3], [4,5,6]]
+c = [[1,2,3], [5,4,6]]
 
-layout = [
-    [sg.Text('Elemento que se expandirá'), sg.InputText(key='-EXPAND-', size=(20, 1), expand_x=True)],
-    [sg.Button('Enviar'), sg.Button('Cancelar')]
-]
+x, y = a
 
-window = sg.Window('Ejemplo de expansión', layout, resizable=True, finalize=True)
-
-# Definir la expansión máxima del elemento en dirección X e Y
-
-while True:
-    event, values = window.read()
-
-    if event == sg.WIN_CLOSED or event == 'Cancelar':
-        break
-
-window.close()
+for x1, y1 in zip(x, y):
+    if x1 in b[0] and y1 in b[1]:
+        print(True)
