@@ -11,6 +11,7 @@ import PySimpleGUI as sg
 from sklearn import metrics
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import threading
+import os
 
 # Global vars
 global_time = None # Tiempo de la aplicación para ver cuando reclusterizar
@@ -606,6 +607,8 @@ def execute(output_file_name):
     global old_y_list
     global x
     global y
+    
+    exec_start_time = time.time()
 
     last_n_optimal_centroids_configuration.clear()
     last_n_optimal_clusters_configurations.clear()
@@ -727,12 +730,14 @@ def execute(output_file_name):
             dump_it = -1
         dump_it = dump_it + 1
         window.refresh()
-        
+    exec_end_time = time.time()
     with open(f"{output_file_name}.json", "w") as file:
         json.dump(json_file, file, indent=4)  # Use indent for formatting
+    os.rename(f"{output_file_name}.json", f"{output_file_name}_time{round(exec_end_time - exec_start_time, 2)}.json")
     window["-ABORT-"].update(disabled=True)
     window["-ABORT-"].update(button_color="grey")
     print("--------------------------------\nFIN DE LA EJECUCIÓN\n--------------------------------")
+    print(f"El resultado está en el archivo: {output_file_name}_time{round(exec_end_time - exec_start_time, 2)}.json")
     window["-ERASEPLOT-"].update(disabled=not window["-ERASEPLOT-"].Disabled)
     window["-ERASEPLOT-"].update(button_color="red")
 
