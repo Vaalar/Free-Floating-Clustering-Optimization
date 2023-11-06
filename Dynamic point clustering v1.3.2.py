@@ -301,9 +301,8 @@ def executeKmeans(max_clusters, reassigned_points, occupied_points=[[], []]):
             # Capturamos los clústeres y las etiquetas
             centroids, clusters, labels = kmeans(n_clusters, (x, y))
             # Calculamos el índice de Calinski-Harabasz utilizando el método proprocionado por la biblioteca scikit.learn.
-            ch_index = metrics.calinski_harabasz_score(list(zip(x, y)), labels)
-            clusters_CH_index.append(
-                ch_index)
+            metrics.calinski_harabasz_score(list(zip(x, y)), labels)
+            clusters_CH_index.append(metrics.calinski_harabasz_score(list(zip(x, y)), labels))
             n_clusters_list.append(clusters)
             centroids_list.append(centroids)
             labels_list.append(labels)
@@ -313,7 +312,8 @@ def executeKmeans(max_clusters, reassigned_points, occupied_points=[[], []]):
             break
 
     # Escogemos la agrupación de clústeres con el mayor índice como el óptimo relativo
-    i = clusters_CH_index.index(max(clusters_CH_index))
+    ch_index = max(clusters_CH_index)
+    i = clusters_CH_index.index(ch_index)
     clusters = n_clusters_list[i]
     # Guarda las etiquetas de a que cluster está asignado cada punto
     labels = labels_list[i]
@@ -755,6 +755,8 @@ def simulate(jsonFile, sleepTime):
     global y
     x = jsonFile[0]["old_coords"][0]
     y = jsonFile[0]["old_coords"][1]
+    point_size = eval(values["-POINTSIZE-"])
+
     if(sleepTime < 0.1):
         sleepTime = 0.1
         print("Tiempo escogido menor que 0.1. Autocorrigiendo a 0.1.")
@@ -782,10 +784,12 @@ def showCertainConfiguration(jsonFile, entryId):
     global x
     global y
     global abort_simulation
+    global point_size
     x = jsonFile[0]["old_coords"][0]
     y = jsonFile[0]["old_coords"][1]
     entry = jsonFile[entryId]
     print(f"Fecha de la entrada: {entry['time']}")
+    point_size = eval(values["-POINTSIZE-"])
     add_clusters_to_plot(entry['clusters'], list(zip(*entry['centroids'])), entry['reassigned'], entry['post_reassigned'], entry['old_coords'], entry['occupied'], entry['reclustered'])
 
 
