@@ -13,6 +13,10 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import threading
 import os
 
+# SIGNALS
+ABORT_SIMULATION = True
+abort_signal = False
+
 # Global vars
 global_time = None # Tiempo de la aplicación para ver cuando reclusterizar
 end_time = None # Tiempo de fin del dataset
@@ -66,7 +70,7 @@ simulation_speed = 0.1
 sg.theme("DarkTanBlue")
 
 frame_layout = [[sg.Multiline("", size=(72, 15), autoscroll=True,
-                              reroute_stdout=True, reroute_stderr=False, key='-OUTPUT-', expand_x=True, expand_y=True)]]
+                              reroute_stdout=True, reroute_stderr=True, key='-OUTPUT-', expand_x=True, expand_y=True)]]
 
 dataset_load_frame = [
     [sg.InputText(key="-FILE-", expand_x=True),
@@ -651,8 +655,6 @@ def execute(output_file_name):
     dump_it = 0
 
     while(global_time <= end_time):
-        if threading.Event().is_set():
-            break
         reclustered = False
         old_x = x.copy()
         old_x_list.append(x)
@@ -664,7 +666,7 @@ def execute(output_file_name):
         global_time = global_time + timedelta(minutes=time_interval)
 
 
-        # occupied_points guarda aquellos puntos que no pertencen a ningún clúster
+        # occupied_points guarda aquellos puntos que están ocupados (e.g: una bici reservada por un usuario)
         moved_points, occupied_points, group_entry_idx = updatePoints(old_x, old_y, group_entry_idx)
 
         for point in moved_points:
@@ -738,21 +740,16 @@ def execute(output_file_name):
     with open(f"{output_file_name}.json", "w") as file:
         json.dump(json_file, file, indent=4)  # Use indent for formatting
     os.rename(f"{output_file_name}.json", f"{output_file_name}_time{round(exec_end_time - exec_start_time, 2)}.json")
-    window["-ABORT-"].update(disabled=True)
-    window["-ABORT-"].update(button_color="grey")
     print("--------------------------------\nFIN DE LA EJECUCIÓN\n--------------------------------")
     print(f"El resultado está en el archivo: {output_file_name}_time{round(exec_end_time - exec_start_time, 2)}.json")
     window["-ERASEPLOT-"].update(disabled=not window["-ERASEPLOT-"].Disabled)
     window["-ERASEPLOT-"].update(button_color="red")
 
 def simulate(jsonFile, sleepTime):
-    window["-ABORT-"].update(disabled=True)
-    if threading.current_thread().name == "MainThread":
-        print("Mainthread exiting")
-        window.refresh()
-        return  # Skip the function for the main thread
     global x
     global y
+    global abort_signal
+    global point_size
     x = jsonFile[0]["old_coords"][0]
     y = jsonFile[0]["old_coords"][1]
     point_size = eval(values["-POINTSIZE-"])
@@ -764,14 +761,14 @@ def simulate(jsonFile, sleepTime):
         sleepTime = 1
         print("Tiempo escogido mayor que 2. Autocorrigiendo a 2.")
     for entry in tqdm(jsonFile, unit="item", ascii=True):
-        if(threading.Event().is_set()):
+        if(abort_signal == True):
             print("Simulación abortada")
-            return
+            abort_signal = False
+            break
         add_clusters_to_plot(entry['clusters'], list(zip(*entry['centroids'])), entry['reassigned'], entry['post_reassigned'], entry['old_coords'], entry['occupied'], entry['reclustered'])
         time.sleep(sleepTime)
         print("\n")
         window.refresh()
-
     window["-ABORT-"].update(disabled=True)
     window["-ABORT-"].update(button_color="grey")
     window["-ERASEPLOT-"].update(disabled=False)
@@ -885,7 +882,6 @@ if __name__ == "__main__":
                 print(e)
 
         elif event == "Simular JSON":
-            threading.Event().clear()
             try:
                 with open(values["-JSONFILE-"], "r") as jsonFile:
                     data = json.load(jsonFile)
@@ -900,6 +896,7 @@ if __name__ == "__main__":
                     window["-ERASEPLOT-"].update(button_color="grey")
                 window["-TOGGLETRACE-"].update(disabled=True)
                 t = threading.Thread(target=simulate, args=(data, simulation_speed))
+                window["-ABORT-"].update(disabled=False)
                 window["-ABORT-"].update(button_color="red")
                 t.start()
             except Exception as e:
@@ -937,15 +934,14 @@ if __name__ == "__main__":
             except Exception as e:
                 print(e)
         elif event == "-ABORT-":
-            threading.Event().set()
             window["-ABORT-"].update(disabled=True)
             window["-ABORT-"].update(button_color="grey")
             window["-ERASEPLOT-"].update(disabled=False)
             window["-ERASEPLOT-"].update(button_color="red")
             print("Abortando...")
+            abort_signal = ABORT_SIMULATION
             t.join()
             print("Simulación abortada")
-            threading.Event().clear()
 
     window.close()
 
