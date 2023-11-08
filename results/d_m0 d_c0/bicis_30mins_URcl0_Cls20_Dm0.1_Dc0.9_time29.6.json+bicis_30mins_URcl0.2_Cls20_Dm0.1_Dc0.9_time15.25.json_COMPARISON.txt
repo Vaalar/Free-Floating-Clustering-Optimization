@@ -1,0 +1,555 @@
+2019-07-18 00:01:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): True
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 19
+		Numero de clusters (RECLUSTERING COEFFICIENT): 19
+}
+2019-07-18 00:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 19
+		Numero de clusters (RECLUSTERING COEFFICIENT): 19
+}
+2019-07-18 01:01:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 13
+		Numero de clusters (RECLUSTERING COEFFICIENT): 19
+}
+2019-07-18 01:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): True
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 14
+		Numero de clusters (RECLUSTERING COEFFICIENT): 19
+}
+2019-07-18 02:01:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 14
+		Numero de clusters (RECLUSTERING COEFFICIENT): 19
+}
+2019-07-18 02:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 14
+		Numero de clusters (RECLUSTERING COEFFICIENT): 19
+}
+2019-07-18 03:01:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): True
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 19
+		Numero de clusters (RECLUSTERING COEFFICIENT): 19
+}
+2019-07-18 03:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 19
+		Numero de clusters (RECLUSTERING COEFFICIENT): 19
+}
+2019-07-18 04:01:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 19
+		Numero de clusters (RECLUSTERING COEFFICIENT): 19
+}
+2019-07-18 04:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 19
+		Numero de clusters (RECLUSTERING COEFFICIENT): 19
+}
+2019-07-18 05:01:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 19
+		Numero de clusters (RECLUSTERING COEFFICIENT): 19
+}
+2019-07-18 05:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 19
+		Numero de clusters (RECLUSTERING COEFFICIENT): 19
+}
+2019-07-18 06:01:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): True
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 17
+		Numero de clusters (RECLUSTERING COEFFICIENT): 17
+}
+2019-07-18 06:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): True
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 19
+		Numero de clusters (RECLUSTERING COEFFICIENT): 17
+}
+2019-07-18 07:01:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 14
+		Numero de clusters (RECLUSTERING COEFFICIENT): 17
+}
+2019-07-18 07:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): True
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 19
+		Numero de clusters (RECLUSTERING COEFFICIENT): 17
+}
+2019-07-18 08:01:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 19
+		Numero de clusters (RECLUSTERING COEFFICIENT): 19
+}
+2019-07-18 08:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 12
+		Numero de clusters (RECLUSTERING COEFFICIENT): 19
+}
+2019-07-18 09:01:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): True
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 16
+}
+2019-07-18 09:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): True
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 19
+		Numero de clusters (RECLUSTERING COEFFICIENT): 16
+}
+2019-07-18 10:01:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 17
+		Numero de clusters (RECLUSTERING COEFFICIENT): 17
+}
+2019-07-18 10:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 18
+		Numero de clusters (RECLUSTERING COEFFICIENT): 17
+}
+2019-07-18 11:01:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): True
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 17
+		Numero de clusters (RECLUSTERING COEFFICIENT): 17
+}
+2019-07-18 11:31:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 12
+		Numero de clusters (RECLUSTERING COEFFICIENT): 12
+}
+2019-07-18 12:01:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): True
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 13
+		Numero de clusters (RECLUSTERING COEFFICIENT): 12
+}
+2019-07-18 12:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 13
+		Numero de clusters (RECLUSTERING COEFFICIENT): 12
+}
+2019-07-18 13:01:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 13
+		Numero de clusters (RECLUSTERING COEFFICIENT): 13
+}
+2019-07-18 13:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 11
+		Numero de clusters (RECLUSTERING COEFFICIENT): 13
+}
+2019-07-18 14:01:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): True
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 13
+		Numero de clusters (RECLUSTERING COEFFICIENT): 13
+}
+2019-07-18 14:31:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): True
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 10
+		Numero de clusters (RECLUSTERING COEFFICIENT): 10
+}
+2019-07-18 15:01:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): True
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 15
+		Numero de clusters (RECLUSTERING COEFFICIENT): 10
+}
+2019-07-18 15:31:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 16
+}
+2019-07-18 16:01:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): True
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 15
+		Numero de clusters (RECLUSTERING COEFFICIENT): 15
+}
+2019-07-18 16:31:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 12
+		Numero de clusters (RECLUSTERING COEFFICIENT): 12
+}
+2019-07-18 17:01:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 11
+		Numero de clusters (RECLUSTERING COEFFICIENT): 11
+}
+2019-07-18 17:31:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): True
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 19
+		Numero de clusters (RECLUSTERING COEFFICIENT): 19
+}
+2019-07-18 18:01:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 17
+		Numero de clusters (RECLUSTERING COEFFICIENT): 17
+}
+2019-07-18 18:31:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 13
+		Numero de clusters (RECLUSTERING COEFFICIENT): 13
+}
+2019-07-18 19:01:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): True
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 17
+		Numero de clusters (RECLUSTERING COEFFICIENT): 17
+}
+2019-07-18 19:31:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 14
+		Numero de clusters (RECLUSTERING COEFFICIENT): 14
+}
+2019-07-18 20:01:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 14
+		Numero de clusters (RECLUSTERING COEFFICIENT): 14
+}
+2019-07-18 20:31:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 14
+		Numero de clusters (RECLUSTERING COEFFICIENT): 14
+}
+2019-07-18 21:01:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): True
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 19
+		Numero de clusters (RECLUSTERING COEFFICIENT): 14
+}
+2019-07-18 21:31:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 14
+		Numero de clusters (RECLUSTERING COEFFICIENT): 14
+}
+2019-07-18 22:01:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): True
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 19
+		Numero de clusters (RECLUSTERING COEFFICIENT): 14
+}
+2019-07-18 22:31:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): True
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 17
+		Numero de clusters (RECLUSTERING COEFFICIENT): 17
+}
+2019-07-18 23:01:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 19
+		Numero de clusters (RECLUSTERING COEFFICIENT): 19
+}
+2019-07-18 23:31:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 11
+		Numero de clusters (RECLUSTERING COEFFICIENT): 11
+}
+2019-07-19 00:01:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 10
+		Numero de clusters (RECLUSTERING COEFFICIENT): 10
+}
+2019-07-19 00:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): True
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 10
+}
+2019-07-19 01:01:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 10
+}
+2019-07-19 01:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 10
+}
+2019-07-19 02:01:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 10
+}
+2019-07-19 02:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 10
+}
+2019-07-19 03:01:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 10
+}
+2019-07-19 03:31:53+00:00 {
+	Ambos clusterizaron: True - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: True)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 16
+}
+2019-07-19 04:01:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 16
+}
+2019-07-19 04:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 16
+}
+2019-07-19 05:01:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 16
+}
+2019-07-19 05:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 16
+}
+2019-07-19 06:01:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 16
+}
+2019-07-19 06:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 16
+}
+2019-07-19 07:01:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 16
+}
+2019-07-19 07:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 16
+}
+2019-07-19 08:01:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 16
+}
+2019-07-19 08:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 16
+}
+2019-07-19 09:01:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 16
+}
+2019-07-19 09:31:53+00:00 {
+	Ambos clusterizaron: False - (ALWAYS RECLUSTER: True, RECLUSTERING COEFFICIENT: False)
+	¿Era necesario?
+		(ALWAYS RECLUSTER): False
+		(RECLUSTERING COEFFICIENT): True
+		Numero de clusters (ALWAYS RECLUSTER): 16
+		Numero de clusters (RECLUSTERING COEFFICIENT): 16
+}
+Estadísticas:
+	Veces reclusterizado:
+		(ALWAYS RECLUSTER): 68
+		(RECLUSTERING COEFFICIENT): 26
+		Reclusters innecesarios:
+			(ALWAYS RECLUSTER): 48
+			(RECLUSTERING COEFFICIENT): 17
+		Reclusters necesarios no realizados:
+			(RECLUSTERING COEFFICIENT): 11
+
+	Veces que ALWAYS RCL CH_IDX > RCL COEFF CH_IDX: 16
