@@ -2,7 +2,7 @@
 Dynamic point Clustering v1.3.2.py
 Everything in the Clustering folder are old versions of the script. They were kept for tracking purposes.
 
-#How to use
+# How to use
 Install:
   Install python 3 and the libraries used by the script
 Use:
