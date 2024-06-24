@@ -5,6 +5,7 @@ Everything in the Clustering folder are old versions of the script. They were ke
 # How to use
 Install:
   Install python 3 and the libraries used by the script
+  
 Use:
   1. Run the script. A UI windows should open.
   2. Load data set in the scriptcalled Registro_de_bicis.csv (located in TFGs/CLustering/Datasets).
